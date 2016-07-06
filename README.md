@@ -9,11 +9,11 @@ After a bit of arguing with myself, I thought I would create it in the fashion o
 
 And now I am standing here, having developed a system, which can certainly be improved by a **lot**. (Noticed the emphasis?)
 
-~~As I have absolutly no idea how to deal with git, you will find the source~~ *Still have no idea, but hey :P*
+~~As I have absolutely no idea how to deal with git, you will find the source~~ *Still have no idea, but hey :P*
 
 The basic System is as follows:
 You have an abstract class called "CommandNode", which is a node in a Tree. This node offers a few methods, most of whom are private or protected, so you won't really need to deal with them :p
-It has a few basic attributrs (name, keyword, Pattern, permission) a parent, a list with children and a Predicate. The Predicate checks if the commandSender is accpeted. I will say more about that later.
+It has a few basic attributes (name, keyword, Pattern, permission) a parent, a list with children and a Predicate. The Predicate checks if the commandSender is accepted. I will say more about that later.
 
 For the most things I said are public getters or validators (matchesPattern, hasPermission, acceptsCommandSender) available.
 
@@ -30,7 +30,7 @@ Now, if a player executes "/basecommand test", it will execute the one extending
 This means, you can have two versions of one command, each in their own class, but one for players and one (possibly also taking a location) for the console.
 
 The other main thing are subcommands. You can have "test" and two children "crash" and "dummy". Each of them is quite complex, which makes a if clause on the first argument quite messy.
-With this system, you register "crash" and "dummy" as children of "test", and they will be availlable for tabcompletion and can also be executed just like test. They will be passed the correct arguments too. So "/basecommand test dummy hey" will execute "dummy" with the arguments "hey" and "/basecommand test crash" will just execute "crash".
+With this system, you register "crash" and "dummy" as children of "test", and they will be available for tabcompletion and can also be executed just like test. They will be passed the correct arguments too. So "/basecommand test dummy hey" will execute "dummy" with the arguments "hey" and "/basecommand test crash" will just execute "crash".
 
 Another thing is the help command. How would you do that? Well, the default implementation of the CommandListener thinks of that. You can add the "@HelpCommandNode" annotation to a CommandNode class, and it will be used as the main help command, if no valid command was detected. This happens for example, when the user just writes the baseCommand, without any additional parameters.
 
@@ -78,6 +78,6 @@ getCommand("exampleTest").setTabCompleter(new CommandTreeTabCompleteListener(tre
 And that was it. It *should* now work for you as good or bad as for me :p
 
 
-I would absolutly love to hear some criticism, as long as it adds to the conversation! I think the term is constructive ;)
+I would absolutely love to hear some criticism, as long as it adds to the conversation! I think the term is constructive ;)
 
 Nice you managed to read until here, have a nice day ;)
