@@ -7,9 +7,9 @@ Hey,
 I recently thought a command system would be a nice thing to develop, as I always find myself creating a bad one for every new plugin.
 After a bit of arguing with myself, I thought I would create it in the fashion of a tree, as that allows child commands quite easily.
 
-And now I am standing here, having developed a system, which can certainly be improved by a **lot**. (Noticed the emphasis? It is the main reason why I am posting here and not somewhere in the Resource section. I wouldn't want to post a half-baked, inefficient and maybe overcomplicated or not working resource there. Which is hopefully understandable :p I also don't think it belongs in WIP, so I chose this forum... :))
+And now I am standing here, having developed a system, which can certainly be improved by a **lot**. (Noticed the emphasis?)
 
-As I have absolutly no idea how to deal with git, you will find the source (Zip archive, the two exported eclipse projects inside) and a compiled version (also with source, so the IDE should be intelligent enough to show the Javadoc...) later.
+~~As I have absolutly no idea how to deal with git, you will find the source~~ *Still have no idea, but hey :P*
 
 The basic System is as follows:
 You have an abstract class called "CommandNode", which is a node in a Tree. This node offers a few methods, most of whom are private or protected, so you won't really need to deal with them :p
@@ -78,6 +78,6 @@ getCommand("exampleTest").setTabCompleter(new CommandTreeTabCompleteListener(tre
 And that was it. It *should* now work for you as good or bad as for me :p
 
 
-I would absolutly love to hear some criticism, as long as it adds to the conversation! I think the term is constructive :p
+I would absolutly love to hear some criticism, as long as it adds to the conversation! I think the term is constructive ;)
 
 Nice you managed to read until here, have a nice day ;)
