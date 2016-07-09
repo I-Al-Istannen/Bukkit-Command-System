@@ -53,18 +53,22 @@ public class I18N implements MessageProvider {
 	private Map<String, MessageFormat> formatCache = new HashMap<>();
 	
 	private FileClassLoader fileClassLoader;
+	private ClassLoader defaultClassLoader;
 	
 	/**
 	 * @param defaultPackage The default fully-qualified package name
 	 * @param defaultFilePath The default file path
 	 * @param locale The default locale
 	 * @param logger The logger to use
+	 * @param defaultClassLoader The classloader to use. Really ugly way, but otherwise it is not able to scan through the packages :/
 	 * @param categories The categories to add to the map. Will be the only files read and processed from the given parts.
 	 */
-	public I18N(String defaultPackage, Path defaultFilePath, Locale locale, Logger logger, String... categories) {
+	public I18N(String defaultPackage, Path defaultFilePath, Locale locale, Logger logger, ClassLoader defaultClassLoader, String... categories) {
 		if(categories.length < 1) {
 			throw new IllegalArgumentException("Must specify at least one category.");
 		}
+
+		this.defaultClassLoader = defaultClassLoader;
 		
 		this.locale = Locale.ENGLISH;
 		this.categories = categories;
@@ -84,9 +88,9 @@ public class I18N implements MessageProvider {
 		}
 		fileClassLoader = new FileClassLoader(defaultFilePath, defaultPackage);
 		
-		// initalize the bundles
+		// Initialize the bundles
 		for (String string : categories) {
-			packageBundles.put(string, ResourceBundle.getBundle(defaultPackage + "." + string, getLanguage()));
+			packageBundles.put(string, ResourceBundle.getBundle(defaultPackage + "." + string, getLanguage(), defaultClassLoader));
 			fileBundles.put(string, ResourceBundle.getBundle(string, getLanguage(), fileClassLoader));
 		}
 	}
@@ -184,6 +188,14 @@ public class I18N implements MessageProvider {
 	}
 	
 	/**
+	 * Reloads the language files in the !folder!
+	 */
+	public void reload() {
+		ResourceBundle.clearCache(fileClassLoader);
+		updateBundles();
+	}
+	
+	/**
 	 * @param locale The locale to check
 	 * @return True if the language is available
 	 */
@@ -204,12 +216,13 @@ public class I18N implements MessageProvider {
 	 * @param defaultPackage The package they are in
 	 * @param targetDir The target directory
 	 * @param overwrite If the existing files should be overwritten.
+	 * @param caller The calling class. Used to distinguish the jar file if this class is provided by multiple plugins
 	 * @return True if the files were written, false otherwise
 	 */
-	public static boolean copyDefaultFiles(String defaultPackage, Path targetDir, boolean overwrite) {
+	public static boolean copyDefaultFiles(String defaultPackage, Path targetDir, boolean overwrite, Class<?> caller) {
 		defaultPackage = defaultPackage.replace(".", "/");
 		try {
-			File jarFile = new File(I18N.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			File jarFile = new File(caller.getProtectionDomain().getCodeSource().getLocation().toURI());
 			if(!jarFile.getAbsolutePath().endsWith(".jar")) {
 				return false;
 			}
