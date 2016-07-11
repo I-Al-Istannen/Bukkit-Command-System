@@ -103,7 +103,7 @@ public class I18N implements MessageProvider {
 		}
 		this.locale = locale;
 		for (String string : packageBundles.keySet()) {
-			packageBundles.put(string, ResourceBundle.getBundle(defaultPackage + "." + string, getLanguage()));
+			packageBundles.put(string, ResourceBundle.getBundle(defaultPackage + "." + string, getLanguage(), defaultClassLoader));
 			fileBundles.put(string, ResourceBundle.getBundle(string, getLanguage(), fileClassLoader));
 		}
 		return getLanguage();
@@ -202,8 +202,8 @@ public class I18N implements MessageProvider {
 	private boolean isAvailable(Locale locale) {
 		for (String string : packageBundles.keySet()) {
 			try {
-				ResourceBundle packageBundle = ResourceBundle.getBundle(defaultPackage + "." + string, locale);
-				ResourceBundle fileBundle = ResourceBundle.getBundle(string, getLanguage(), fileClassLoader);
+				ResourceBundle packageBundle = ResourceBundle.getBundle(defaultPackage + "." + string, locale, defaultClassLoader);
+				ResourceBundle fileBundle = ResourceBundle.getBundle(string, locale, fileClassLoader);
 				return packageBundle.getLocale().equals(locale) || fileBundle.getLocale().equals(locale);
 			} catch(MissingResourceException e) {
 				return false;
