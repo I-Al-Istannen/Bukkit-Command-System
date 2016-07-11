@@ -19,14 +19,25 @@ public class CommandTreeTabCompleteListener implements TabCompleter {
 	private CommandTreeManager treeManager;
 	
 	private boolean distinct;
+	private boolean startingWitchCheckForFoundOnes;
 	
 	/**
 	 * @param treeManager The tree manager
 	 * @param distinct If true, duplicate commands will be suppressed (e.g. for different senders or just registered twice)
 	 */
 	public CommandTreeTabCompleteListener(CommandTreeManager treeManager, boolean distinct) {
+		this(treeManager, distinct, true);
+	}
+
+	/**
+	 * @param treeManager The tree manager
+	 * @param distinct If true, duplicate commands will be suppressed (e.g. for different senders or just registered twice)
+	 * @param startingWitchCheckForFoundOnes If true, the commands will be filtered if they don't start with what the user wrote.
+	 */
+	public CommandTreeTabCompleteListener(CommandTreeManager treeManager, boolean distinct, boolean startingWitchCheckForFoundOnes) {
 		this.treeManager = treeManager;
 		this.distinct = distinct;
+		this.startingWitchCheckForFoundOnes = startingWitchCheckForFoundOnes;
 	}
 	
 	@Override
@@ -45,7 +56,13 @@ public class CommandTreeTabCompleteListener implements TabCompleter {
 			return list;
 		}
 		if(treeManager.nodeExists(args)) {
-			return treeManager.getRoot().onTabComplete(Arrays.asList(args), sender);
+			List<String> commands = treeManager.getRoot().onTabComplete(Arrays.asList(args), sender);
+			if(startingWitchCheckForFoundOnes) {
+				return commands.stream().filter(string -> string.toLowerCase().startsWith(args[args.length - 1].toLowerCase())).collect(Collectors.toList());
+			}
+			else {
+				return commands;
+			}
 		}
 		else {
 			return Collections.emptyList();
