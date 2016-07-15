@@ -162,8 +162,8 @@ public class I18N implements MessageProvider {
 	 * @return The formatted String.
 	 */
 	@Override
-	public String tr(String key, Object... formattingObjects) {
-		return REMOVE_DOUBLE_QUOTES.matcher(format(key, categories[0], formattingObjects)).replaceAll("'");
+	public String translate(String key, Object... formattingObjects) {
+		return translate(key, categories[0], formattingObjects);
 	}
 	
 	/**
