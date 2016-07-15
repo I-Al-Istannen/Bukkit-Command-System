@@ -162,7 +162,7 @@ public class I18N implements MessageProvider {
 	 * @return The formatted String.
 	 */
 	@Override
-	public String translate(String key, Object... formattingObjects) {
+	public String tr(String key, Object... formattingObjects) {
 		return translate(key, categories[0], formattingObjects);
 	}
 	
