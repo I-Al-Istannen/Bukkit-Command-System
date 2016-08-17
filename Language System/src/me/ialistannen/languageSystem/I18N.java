@@ -1,5 +1,7 @@
 package me.ialistannen.languageSystem;
 
+import org.bukkit.ChatColor;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,7 +174,7 @@ public class I18N implements MessageProvider {
 	 */
 	@Override
 	public String tr(String key, Object... formattingObjects) {
-		return translate(key, categories[0], formattingObjects);
+		return ChatColor.translateAlternateColorCodes('&', translate(key, categories[0], formattingObjects));
 	}
 
 	/**
@@ -193,7 +195,7 @@ public class I18N implements MessageProvider {
 			} catch (IllegalArgumentException e) {
 				format = new MessageFormat(defaultString.replaceAll("\\{(.+)\\}", "[$1]"));
 			}
-			return format.format(formattingObjects);
+			return ChatColor.translateAlternateColorCodes('&', format.format(formattingObjects));
 		}
 		return tr(key, formattingObjects);
 	}

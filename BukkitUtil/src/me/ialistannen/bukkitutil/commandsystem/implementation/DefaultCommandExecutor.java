@@ -9,10 +9,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A {@link CommandExecutor} implementation for the command system
+ * <p>
+ *     <b>Language Keys:</b>
+ * <ul>
+ *     <li>"command_not_found" ==> if a command was not found</li>
+ *     <li>"permission_denied"</li>
+ *     <li>"wrong_sender_type" ==> If the {@link CommandSender} is of the wrong type</li>
+ * </ul>
  */
 public class DefaultCommandExecutor implements CommandExecutor {
 
@@ -40,7 +49,8 @@ public class DefaultCommandExecutor implements CommandExecutor {
 				if (!node.isPresent()) {
 					PluginMain.getInstance().getLogger().warning("How the heck can this happen?" +
 							" Send usage, but no command defined.");
-					sender.sendMessage(language.tr("not_found"));
+					sender.sendMessage(language.tr("command_not_found",
+							Arrays.stream(args).collect(Collectors.joining(" "))));
 					return true;
 				}
 				sender.sendMessage(node.get().getUsage());
@@ -52,7 +62,8 @@ public class DefaultCommandExecutor implements CommandExecutor {
 				sender.sendMessage(language.tr("wrong_sender_type"));
 				break;
 			case NOT_FOUND:
-				sender.sendMessage(language.tr("not_found"));
+				sender.sendMessage(language.tr("command_not_found",
+						Arrays.stream(args).collect(Collectors.joining(" "))));
 				break;
 		}
 		return true;

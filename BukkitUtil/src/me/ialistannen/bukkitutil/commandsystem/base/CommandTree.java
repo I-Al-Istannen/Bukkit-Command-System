@@ -32,7 +32,7 @@ public class CommandTree {
 	@SuppressWarnings("unused")
 	public CommandTree(MessageProvider language, Plugin plugin) {
 		root = new CommandRoot(language);
-		setHelpCommand(new DefaultHelpCommand(language, this));
+		setHelpCommand(new DefaultHelpCommand(language, this, "command_help"));
 	}
 
 	/**

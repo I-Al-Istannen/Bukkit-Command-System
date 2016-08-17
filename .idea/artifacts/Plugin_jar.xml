@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Plugin jar">
+    <output-path>S:/Minecraft/Bukkit Server/1.8.8 clean/plugins/update</output-path>
+    <root id="archive" name="BukkitUtil.jar">
+      <element id="module-output" name="BukkitUtil" />
+      <element id="module-output" name="Language System" />
+      <element id="dir-copy" path="$PROJECT_DIR$/BukkitUtil/src" />
+      <element id="dir-copy" path="$PROJECT_DIR$/Language System/src" />
+    </root>
+  </artifact>
+</component>

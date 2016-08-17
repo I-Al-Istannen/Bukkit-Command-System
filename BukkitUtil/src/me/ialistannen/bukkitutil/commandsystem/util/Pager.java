@@ -9,6 +9,8 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.ialistannen.bukkitutil.commandsystem.util.CommandSystemUtil.color;
+
 /**
  * Pages entries
  */
@@ -81,7 +83,7 @@ public class Pager {
 				if (withUsage) {
 					String key = "command_help_format_with_usage";
 					finalString = language.trOrDefault(key,
-							"&3{0}&9: &7{1} &7<&6{2}&7><newline> &cUsage: {3}",
+							"&3{0}&9: &7{1} &7<&6{2}&7><newline>  &cUsage: {3}",
 							node.getName(), description, childrenAmount, usage);
 				} else {
 					String key = "command_help_format_without_usage";
@@ -89,13 +91,15 @@ public class Pager {
 							"&3{0}&9: &7{1} &7<&6{2}&7>",
 							node.getName(), description, childrenAmount, usage);
 				}
+
+				finalString = color(finalString);
 			}
 
 			for (String s : finalString.split("<newline>")) {
 				if (counter == 0) {
-					s = language.trOrDefault("command_help_top_level_prefix", "") + s;
+					s = color(language.trOrDefault("command_help_top_level_prefix", "")) + s;
 				} else {
-					s = language.trOrDefault("command_help_sub_level_prefix", "") + s;
+					s = color(language.trOrDefault("command_help_sub_level_prefix", "")) + s;
 				}
 				s = CommandSystemUtil.repeat(" ", counter * 2) + s;
 				list.add(s);
@@ -168,13 +172,13 @@ public class Pager {
 		 * @param language The {@link MessageProvider} to use
 		 */
 		public void send(CommandSender sender, MessageProvider language) {
-			sender.sendMessage(language.trOrDefault("command_help_header",
-					"\n&5+-------------- &a&lHelp &8(&a%s&8/&2%s&8) &5----------------+\n ",
-					pageIndex + 1, maxPages));
-			entries.forEach(sender::sendMessage);
-			sender.sendMessage(language.trOrDefault("command_help_footer",
-					"\n&5+----------------- &8(&a%s&8/&2%s&8) &5------------------+\n ",
-					pageIndex + 1, maxPages));
+			sender.sendMessage(color(language.trOrDefault("command_help_header",
+					"\n&5+-------------- &a&lHelp &8(&a{0}&8/&2{1}&8) &5----------------+\n ",
+					pageIndex + 1, maxPages)));
+			entries.forEach(s -> sender.sendMessage(color(s)));
+			sender.sendMessage(color(language.trOrDefault("command_help_footer",
+					"\n&5+----------------- &8(&a{0}&8/&2{1}&8) &5------------------+\n ",
+					pageIndex + 1, maxPages)));
 		}
 	}
 }

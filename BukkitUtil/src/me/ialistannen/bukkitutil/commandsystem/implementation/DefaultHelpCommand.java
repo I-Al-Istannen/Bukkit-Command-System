@@ -20,11 +20,16 @@ import java.util.stream.Collectors;
 /**
  * The default help command
  * <p><b>Needs a few keys:</b>
+ * <li>KEY + "_permission"</li>
+ * <li>KEY + "_name"</li>
+ * <li>KEY + "_keyword"</li>
+ * <li>KEY + "_description"</li>
+ * <li>KEY + "_usage"</li>
+ * <li>KEY + "_pattern"</li>
+ * <p>
+ * <li>KEY + "_not_found"</li>
  * <ul>
- * <li>"command_help_format"</li>
- * <ul>
- * <li>{0} ==> The thing the user entered</li>
- * <li>Use "{@literal <newline>}" for a linebreak</li>
+ * <li>{0} ==> What the user entered</li>
  * </ul>
  * </ul>
  * <p>
@@ -34,22 +39,28 @@ import java.util.stream.Collectors;
 public class DefaultHelpCommand extends AbstractCommandNode {
 
 	private final CommandTree tree;
+	private final String KEY;
 
 	/**
-	 * {@inheritDoc}
+	 * Please see {@link DefaultHelpCommand} for the needed language keys
 	 *
-	 * @param tree The command tree. Queried for all the children.
+	 * @param language The language
+	 * @param tree     The command tree. Queried for all the children.
+	 * @param key      The Base key. Default is "command_help"
 	 *
 	 * @see AbstractCommandNode#AbstractCommandNode(MessageProvider)
 	 */
-	public DefaultHelpCommand(@Nonnull MessageProvider language, @Nonnull CommandTree tree) {
-		super(language);
+	public DefaultHelpCommand(@Nonnull MessageProvider language, @Nonnull CommandTree tree,
+	                          String key) {
+
+		super(language, key);
 		this.tree = tree;
+		this.KEY = key;
 	}
 
 	@Override
 	public boolean isForbidden(Permissible permissible) {
-		return !permissible.hasPermission(language.tr("default_help_permission"));
+		return !permissible.hasPermission(language.tr(KEY + "_permission"));
 	}
 
 	@Override
@@ -102,7 +113,7 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 						entriesPerPage.get(), page.get())
 						.send(sender, language);
 			} else {
-				sender.sendMessage(language.tr("command_help_not_found",
+				sender.sendMessage(language.tr(KEY + "_not_found",
 						Arrays.stream(args).collect(Collectors.joining(" "))));
 			}
 			return CommandResultType.SUCCESSFUL;

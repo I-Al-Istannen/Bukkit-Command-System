@@ -285,7 +285,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 * @param child The child node to add
 	 */
 	@SuppressWarnings("unused")
-	void addChild(AbstractCommandNode child) {
+	protected void addChild(AbstractCommandNode child) {
 		children.add(child);
 	}
 
@@ -295,7 +295,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 * @param child The child to remove
 	 */
 	@SuppressWarnings("unused")
-	void removeChild(AbstractCommandNode child) {
+	protected void removeChild(AbstractCommandNode child) {
 		children.remove(child);
 	}
 
@@ -315,7 +315,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	/**
 	 * Returns all the direct children
 	 *
-	 * @return ALl the direct children
+	 * @return All of the direct children, in an unmodifiable set
 	 */
 	@SuppressWarnings("unused")
 	protected Set<AbstractCommandNode> getChildren() {
