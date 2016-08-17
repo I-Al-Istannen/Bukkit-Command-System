@@ -11,10 +11,10 @@ import java.util.Optional;
 /**
  * A small help with reflection
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("unused")
 public class ReflectionUtil {
 
-	@SuppressWarnings("unused")
+
 	private static final String SERVER_VERSION;
 
 	static {
@@ -48,7 +48,6 @@ public class ReflectionUtil {
 	 *
 	 * @return The CraftBukkit class or null if an error occurred
 	 */
-
 	@SuppressWarnings("unused")
 	public static Class<?> getCraftbukkitClass(String name, String packageName) {
 		try {
@@ -84,7 +83,6 @@ public class ReflectionUtil {
 	 *
 	 * @return The resulting object or null if an error occurred / the method didn't return a thing
 	 */
-	@SuppressWarnings("unused")
 	public static Object invokeMethod(Class<?> clazz, Object handle, String methodName, Class[] parameterClasses,
 	                                  Object... args) {
 		Optional<Method> methodOptional = getMethod(clazz, methodName, parameterClasses);
@@ -110,7 +108,8 @@ public class ReflectionUtil {
 	 * @param name   The name of the field
 	 * @param value  The new value of the field
 	 */
-	@SuppressWarnings({"SameParameterValue", "unused"})
+
+	@SuppressWarnings("unused")
 	public static void setInstanceField(Object handle, String name, Object value) {
 		Class<?> clazz = handle.getClass();
 		Optional<Field> fieldOptional = getField(clazz, name);
@@ -165,7 +164,7 @@ public class ReflectionUtil {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
+
 	private static Optional<Method> getMethod(Class<?> clazz, String name, Class<?>... params) {
 		try {
 			return Optional.of(clazz.getMethod(name, params));
@@ -180,7 +179,7 @@ public class ReflectionUtil {
 		return Optional.empty();
 	}
 
-	@SuppressWarnings("unused")
+
 	private static Optional<Field> getField(Class<?> clazz, String name) {
 		try {
 			return Optional.of(clazz.getField(name));

@@ -31,7 +31,7 @@ public class RelayCommandNode extends DefaultCommand {
 	 * @param permission      The permission the sender needs
 	 * @param senderPredicate The predicate the CommandSender must match
 	 */
-	@SuppressWarnings("SameParameterValue")
+	@SuppressWarnings("unused")
 	public RelayCommandNode(@Nonnull MessageProvider language, @Nonnull String baseKey,
 	                        String permission, Predicate<CommandSender> senderPredicate) {
 
@@ -55,7 +55,9 @@ public class RelayCommandNode extends DefaultCommand {
 	@Override
 	public List<String> tabComplete(CommandSender sender, String alias, List<String> wholeUserChat,
 	                                int indexRelativeToYou) {
-		return getChildren().stream().map(AbstractCommandNode::getKeyword).collect(Collectors.toList());
+		return getChildren().stream()
+				.filter(child -> !child.isNotAble(sender) && !child.isForbidden(sender))
+				.map(AbstractCommandNode::getKeyword).collect(Collectors.toList());
 	}
 
 	@Override

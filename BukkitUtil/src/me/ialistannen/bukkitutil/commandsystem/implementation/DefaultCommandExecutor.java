@@ -16,13 +16,14 @@ import java.util.stream.Collectors;
 /**
  * A {@link CommandExecutor} implementation for the command system
  * <p>
- *     <b>Language Keys:</b>
+ * <b>Language Keys:</b>
  * <ul>
- *     <li>"command_not_found" ==> if a command was not found</li>
- *     <li>"permission_denied"</li>
- *     <li>"wrong_sender_type" ==> If the {@link CommandSender} is of the wrong type</li>
+ * <li>"command_not_found" ==> if a command was not found</li>
+ * <li>"permission_denied"</li>
+ * <li>"wrong_sender_type" ==> If the {@link CommandSender} is of the wrong type</li>
  * </ul>
  */
+@SuppressWarnings("WeakerAccess")
 public class DefaultCommandExecutor implements CommandExecutor {
 
 	private final CommandTree tree;

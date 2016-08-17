@@ -8,8 +8,7 @@ import java.util.stream.IntStream;
 /**
  * Some static utility classes
  */
-@SuppressWarnings("WeakerAccess")
-public class CommandSystemUtil {
+class CommandSystemUtil {
 
 	/**
 	 * Colors the input
@@ -30,7 +29,7 @@ public class CommandSystemUtil {
 	 *
 	 * @return The repeated String
 	 */
-	@SuppressWarnings("SameParameterValue")
+	@SuppressWarnings("SameParameterValue") // May not always want to use " " in the future. This is probably cleaner.
 	public static String repeat(String string, int amount) {
 		return IntStream.range(0, amount).mapToObj(value -> string).collect(Collectors.joining());
 	}

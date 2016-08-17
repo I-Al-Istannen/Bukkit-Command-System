@@ -3,7 +3,6 @@ package me.ialistannen.bukkitutil.commandsystem.base;
 import me.ialistannen.bukkitutil.commandsystem.implementation.DefaultHelpCommand;
 import me.ialistannen.languageSystem.MessageProvider;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -14,23 +13,19 @@ import java.util.Set;
 /**
  * The tree
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 public class CommandTree {
 
-	@SuppressWarnings("unused")
 	private final CommandRoot root;
 
-	@SuppressWarnings("unused")
 	private final List<InvalidationListener> invalidationListener = new ArrayList<>();
 
 	/**
 	 * Key for the base root is "tree_root", but it shouldn't be needed!
 	 *
 	 * @param language The language.
-	 * @param plugin   The plugin
 	 */
 	@SuppressWarnings("unused")
-	public CommandTree(MessageProvider language, Plugin plugin) {
+	public CommandTree(MessageProvider language) {
 		root = new CommandRoot(language);
 		setHelpCommand(new DefaultHelpCommand(language, this, "command_help"));
 	}
@@ -40,7 +35,7 @@ public class CommandTree {
 	 *
 	 * @param node The help command node. Annotated with {@link HelpCommandAnnotation}
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public void setHelpCommand(AbstractCommandNode node) {
 		if (!node.getClass().isAnnotationPresent(HelpCommandAnnotation.class)) {
 			throw new IllegalArgumentException("The help node must be annotated with the 'HelpCommandAnnotation'");
@@ -55,6 +50,7 @@ public class CommandTree {
 	 *
 	 * @return The index it was added at
 	 */
+	// THIS is borderline useless. Maybe for invalidation caches, intended it for the pager originally
 	@SuppressWarnings("unused")
 	public int addInvalidationListener(InvalidationListener invalidationListener) {
 		this.invalidationListener.add(invalidationListener);
@@ -68,6 +64,7 @@ public class CommandTree {
 	 *
 	 * @throws IndexOutOfBoundsException If the index is < 0 or >= the size of the List
 	 */
+	// THIS is borderline useless. Maybe for invalidation caches, intended it for the pager originally
 	@SuppressWarnings("unused")
 	public void removeInvalidationListener(int index) {
 		if (index < 0 || index >= invalidationListener.size()) {
@@ -83,6 +80,7 @@ public class CommandTree {
 	 *
 	 * @param listener The listener to remove (<b>Warning</b>, {@link InvalidationListener} doesn't implement equals)
 	 */
+	// THIS is borderline useless. Maybe for invalidation caches, intended it for the pager originally
 	@SuppressWarnings("unused")
 	public void removeInvalidationListener(InvalidationListener listener) {
 		this.invalidationListener.remove(listener);
@@ -93,7 +91,7 @@ public class CommandTree {
 	 *
 	 * @param child The child node to add
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public void addChild(AbstractCommandNode child) {
 		addChild(getRoot(), child);
 	}
@@ -103,7 +101,7 @@ public class CommandTree {
 	 *
 	 * @param child The child node to add
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public void addChild(AbstractCommandNode parent, AbstractCommandNode child) {
 		onInvalidate(InvalidationReason.CHILD_ADDED, parent, child, true);
 		parent.addChild(child);
@@ -115,7 +113,7 @@ public class CommandTree {
 	 *
 	 * @param child The child to remove
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused") // may be actually useless. But maybe you need to unregister a command
 	public void removeChild(AbstractCommandNode child) {
 		removeChild(getRoot(), child);
 	}
@@ -125,7 +123,7 @@ public class CommandTree {
 	 *
 	 * @param child The child to remove
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public void removeChild(AbstractCommandNode parent, AbstractCommandNode child) {
 		onInvalidate(InvalidationReason.CHILD_REMOVED, parent, child, true);
 		parent.removeChild(child);
@@ -139,7 +137,6 @@ public class CommandTree {
 	 *
 	 * @return ALl the direct children
 	 */
-	@SuppressWarnings("unused")
 	public Set<AbstractCommandNode> getChildren(AbstractCommandNode node) {
 		return node.getChildren();
 	}
@@ -149,7 +146,7 @@ public class CommandTree {
 	 *
 	 * @return All nodes further down in the the tree from this one on
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused") // useful for an own help command.
 	public List<AbstractCommandNode> getAllChildren() {
 		return root.getAllChildren();
 	}
@@ -163,7 +160,6 @@ public class CommandTree {
 	 *
 	 * @return A list with valid completions. Empty for none, null for all online, visible players
 	 */
-	@SuppressWarnings("unused")
 	public AbstractCommandNode.FindTabCompleteResult doTabComplete(@Nonnull CommandSender sender, @Nonnull String
 			alias, @Nonnull String[] args) {
 		return root.doTabComplete(sender, alias, args);
@@ -177,7 +173,6 @@ public class CommandTree {
 	 *
 	 * @return The command or an empty optional
 	 */
-	@SuppressWarnings("unused")
 	public AbstractCommandNode.FindCommandResult find(Queue<String> args, CommandSender sender) {
 		return root.find(args, sender);
 	}
@@ -190,7 +185,6 @@ public class CommandTree {
 	 *
 	 * @return The CommandResult
 	 */
-	@SuppressWarnings("unused")
 	public CommandResult executeCommand(CommandSender sender, String... args) {
 		return root.executeCommand(sender, args);
 	}
@@ -200,7 +194,6 @@ public class CommandTree {
 	 *
 	 * @return The root.
 	 */
-	@SuppressWarnings("unused")
 	public CommandRoot getRoot() {
 		return root;
 	}
@@ -212,7 +205,6 @@ public class CommandTree {
 	 * @param parent The parent node
 	 * @param child  The child node
 	 */
-	@SuppressWarnings("unused")
 	private void onInvalidate(InvalidationReason reason, AbstractCommandNode parent, AbstractCommandNode child,
 	                          boolean preInvalidate) {
 		for (InvalidationListener listener : invalidationListener) {
@@ -235,7 +227,6 @@ public class CommandTree {
 		 * @param parent The parent node
 		 * @param child  The child node
 		 */
-		@SuppressWarnings("unused")
 		void onPreInvalidate(InvalidationReason reason, AbstractCommandNode parent, AbstractCommandNode child);
 
 		/**
@@ -245,7 +236,6 @@ public class CommandTree {
 		 * @param parent The parent node
 		 * @param child  The child node
 		 */
-		@SuppressWarnings("unused")
 		void onPostInvalidate(InvalidationReason reason, AbstractCommandNode parent, AbstractCommandNode child);
 	}
 
@@ -257,10 +247,10 @@ public class CommandTree {
 		/**
 		 * A Child was removed
 		 */
-		@SuppressWarnings("unused")CHILD_REMOVED,
+		CHILD_REMOVED,
 		/**
 		 * A child was added
 		 */
-		@SuppressWarnings("unused")CHILD_ADDED
+		CHILD_ADDED
 	}
 }

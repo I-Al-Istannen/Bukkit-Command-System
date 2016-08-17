@@ -67,7 +67,6 @@ public class Pager {
 	 * @param maxDepth The maximum depth. Index based. 0 ==> Just this command, 1 ==> Command and children
 	 * @param counter  The current counter. Just supply 0. Used for recursion.
 	 */
-	@SuppressWarnings("Duplicates")
 	private static List<String> expand(MessageProvider language, CommandTree tree,
 	                                   boolean withUsage,
 	                                   AbstractCommandNode node, int maxDepth, int counter) {
@@ -132,6 +131,7 @@ public class Pager {
 		 * @param pageIndex The page number of this page
 		 * @param entries   The entries of this page
 		 */
+		@SuppressWarnings("unused")
 		private Page(int maxPages, int pageIndex, List<String> entries) {
 			this.maxPages = maxPages;
 			this.pageIndex = pageIndex;

@@ -20,8 +20,10 @@ import java.util.function.Predicate;
  */
 public abstract class DefaultCommand extends AbstractCommandNode {
 
+	@SuppressWarnings("WeakerAccess") // This could be interesting though
 	protected final String permission;
-	protected final Predicate<CommandSender> canUse;
+	// there is a checker for this.
+	private final Predicate<CommandSender> canUse;
 
 	/**
 	 * Constructs a command.
@@ -31,7 +33,7 @@ public abstract class DefaultCommand extends AbstractCommandNode {
 	 * @param permission      The permission the sender needs
 	 * @param senderPredicate The predicate the CommandSender must match
 	 */
-	@SuppressWarnings("SameParameterValue")
+	@SuppressWarnings("unused")
 	public DefaultCommand(@Nonnull MessageProvider language, @Nonnull String baseKey,
 	                      String permission, Predicate<CommandSender> senderPredicate) {
 
@@ -61,7 +63,8 @@ public abstract class DefaultCommand extends AbstractCommandNode {
 
 	@Override
 	public boolean isForbidden(Permissible permissible) {
-		return !permissible.hasPermission(permission);
+		// empty permission means no restriction
+		return !permission.isEmpty() && !permissible.hasPermission(permission);
 	}
 
 	@Override

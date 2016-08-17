@@ -21,16 +21,15 @@ import java.util.stream.Collectors;
 /**
  * An abstract command node.
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccessRestrictable {
 
-	@SuppressWarnings("unused")
+
 	protected final MessageProvider language;
 
-	@SuppressWarnings("unused")
+
 	private final String BASE_KEY;
 
-	@SuppressWarnings("unused")
+
 	private final Set<AbstractCommandNode> children = new HashSet<>();
 
 	/**
@@ -64,7 +63,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The usage of the command
 	 */
-	@SuppressWarnings("unused")
 	public String getUsage() {
 		return language.tr(CommandInformationKey.USAGE.applyTo(BASE_KEY));
 	}
@@ -74,7 +72,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The description of the command
 	 */
-	@SuppressWarnings("unused")
 	public String getDescription() {
 		return language.tr(CommandInformationKey.DESCRIPTION.applyTo(BASE_KEY));
 	}
@@ -84,7 +81,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The name of the command
 	 */
-	@SuppressWarnings("unused")
 	public String getName() {
 		return language.tr(CommandInformationKey.NAME.applyTo(BASE_KEY));
 	}
@@ -94,7 +90,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The keyword of the command
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public String getKeyword() {
 		return language.tr(CommandInformationKey.KEYWORD.applyTo(BASE_KEY));
 	}
@@ -106,7 +102,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return True if it is this command
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	public boolean matchesPattern(@Nullable String string) {
 		return string != null
 				&& Pattern
@@ -126,7 +122,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return A list with valid completions. Empty for none, null for all online, visible players
 	 */
-	@SuppressWarnings("unused")
 	private FindTabCompleteResult doTabComplete(@Nonnull CommandSender sender, @Nonnull String alias,
 	                                            @Nonnull Queue<String> currentArgs,
 	                                            @Nonnull String[] args) {
@@ -139,6 +134,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 			if (this instanceof CommandRoot) {
 				return new FindTabCompleteResult(
 						chooseStartingWith(getChildren().stream()
+										.filter(child -> !child.isForbidden(sender) && !child.isNotAble(sender))
 										.map(AbstractCommandNode::getKeyword)
 										.collect(Collectors.toList()),
 								lastString),
@@ -201,7 +197,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return A list with valid completions. Empty for none, null for all online, visible players
 	 */
-	@SuppressWarnings("unused")
 	final FindTabCompleteResult doTabComplete(@Nonnull CommandSender sender, @Nonnull String alias,
 	                                          @Nonnull String[] args) {
 		return doTabComplete(sender, alias, new ArrayDeque<>(Arrays.asList(args)), args);
@@ -215,7 +210,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return A list of all the choices which match the startingWith string
 	 */
-	@SuppressWarnings("unused")
 	private List<String> chooseStartingWith(List<String> choices, String startingWith) {
 		if (startingWith == null || startingWith.isEmpty() || choices == null || choices.isEmpty()) {
 			return choices;
@@ -233,7 +227,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The command or an empty optional
 	 */
-	@SuppressWarnings("unused")
 	FindCommandResult find(Queue<String> args, CommandSender sender) {
 		String currentArgs = this instanceof CommandRoot ? "" : args.poll();
 
@@ -247,11 +240,18 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 			} else if (isForbidden(sender)) {
 				return new FindCommandResult(this, new ArrayDeque<>(args), CommandResultType.PERMISSION_DENIED);
 			} else {
+				FindCommandResult tmpChildResult = null;
 				for (AbstractCommandNode commandNode : getChildren()) {
 					FindCommandResult childResult = commandNode.find(new ArrayDeque<>(args), sender);
 					if (childResult.getResult() == CommandResultType.SUCCESSFUL) {
 						return childResult;
+					} else if (childResult.getResult() != CommandResultType.NOT_FOUND) {
+						tmpChildResult = childResult;
 					}
+				}
+
+				if (tmpChildResult != null) {
+					result = tmpChildResult;
 				}
 			}
 		}
@@ -267,7 +267,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The CommandResult
 	 */
-	@SuppressWarnings("unused")
 	CommandResult executeCommand(CommandSender sender, String... args) {
 		FindCommandResult cmd = find(new ArrayDeque<>(Arrays.asList(args)), sender);
 
@@ -284,7 +283,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @param child The child node to add
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	protected void addChild(AbstractCommandNode child) {
 		children.add(child);
 	}
@@ -294,7 +293,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @param child The child to remove
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("WeakerAccess")
 	protected void removeChild(AbstractCommandNode child) {
 		children.remove(child);
 	}
@@ -304,7 +303,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return The help command, if any found
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused") // Maybe a command executor can make use of this.
 	public Optional<AbstractCommandNode> findHelpCommand() {
 		return getAllChildren().stream()
 				.filter(abstractCommandNode -> abstractCommandNode.getClass()
@@ -317,7 +316,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return All of the direct children, in an unmodifiable set
 	 */
-	@SuppressWarnings("unused")
 	protected Set<AbstractCommandNode> getChildren() {
 		return Collections.unmodifiableSet(children);
 	}
@@ -327,7 +325,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 *
 	 * @return All nodes further down in the the tree from this one on
 	 */
-	@SuppressWarnings("unused")
 	List<AbstractCommandNode> getAllChildren() {
 		List<AbstractCommandNode> list = new ArrayList<>();
 		list.addAll(getChildren());
@@ -343,11 +340,11 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 * The result of the find method
 	 */
 	protected class FindCommandResult {
-		@SuppressWarnings("unused")
+
 		private final AbstractCommandNode commandNode;
-		@SuppressWarnings("unused")
+
 		private final Queue<String> remainingArguments;
-		@SuppressWarnings("unused")
+
 		private final CommandResultType result;
 
 		/**
@@ -368,7 +365,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The result
 		 */
-		@SuppressWarnings("unused")
 		public CommandResultType getResult() {
 			return result;
 		}
@@ -378,7 +374,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The command node if any
 		 */
-		@SuppressWarnings("unused")
 		public AbstractCommandNode getCommandNode() {
 			return commandNode;
 		}
@@ -388,7 +383,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The remaining arguments. May be empty.
 		 */
-		@SuppressWarnings("unused")
 		public Queue<String> getRemainingArguments() {
 			return remainingArguments;
 		}
@@ -398,9 +392,9 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 	 * The result of the tab complete method
 	 */
 	public class FindTabCompleteResult {
-		@SuppressWarnings("unused")
+
 		private final List<String> resultList;
-		@SuppressWarnings("unused")
+
 		private final CommandResultType result;
 
 		/**
@@ -418,7 +412,6 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The result
 		 */
-		@SuppressWarnings("unused")
 		public CommandResultType getResult() {
 			return result;
 		}
@@ -428,13 +421,12 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The resulting completion
 		 */
-		@SuppressWarnings("unused")
 		public List<String> getResultList() {
 			return resultList;
 		}
 	}
 
-	@SuppressWarnings("unused")
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -447,7 +439,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		return Objects.equals(BASE_KEY, that.BASE_KEY);
 	}
 
-	@SuppressWarnings("unused")
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(BASE_KEY);

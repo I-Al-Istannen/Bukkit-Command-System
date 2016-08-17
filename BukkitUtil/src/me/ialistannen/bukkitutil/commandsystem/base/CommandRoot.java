@@ -18,6 +18,7 @@ public class CommandRoot extends AbstractCommandNode {
 	 *
 	 * @param language The language
 	 */
+	@SuppressWarnings("unused")
 	public CommandRoot(@Nonnull MessageProvider language) {
 		super(language, "tree_root");
 	}

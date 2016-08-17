@@ -20,6 +20,7 @@ public interface BukkitCommand {
 	 * @return A list with valid completions. Empty for none, null for all online, visible players
 	 */
 	@SuppressWarnings("UnusedParameters")
+	// that's the point of it being an interface...
 	List<String> tabComplete(CommandSender sender, String alias, List<String> wholeUserChat, int indexRelativeToYou);
 
 	/**

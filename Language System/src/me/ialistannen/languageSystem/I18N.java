@@ -67,6 +67,7 @@ public class I18N implements MessageProvider {
 	 * @param categories         The categories to add to the map. Will be the only files read and processed from the
 	 *                           given parts.
 	 */
+	@SuppressWarnings("unused")
 	public I18N(String defaultPackage, Path defaultFilePath, Locale locale, Logger logger, ClassLoader
 			defaultClassLoader, String... categories) {
 		if (categories.length < 1) {
@@ -259,6 +260,7 @@ public class I18N implements MessageProvider {
 	/**
 	 * Reloads the language files in the !folder!
 	 */
+	@SuppressWarnings("unused") // That can come in handy
 	public void reload() {
 		ResourceBundle.clearCache(fileClassLoader);
 		updateBundles();
@@ -275,12 +277,14 @@ public class I18N implements MessageProvider {
 				ResourceBundle packageBundle = ResourceBundle.getBundle(defaultPackage + "." + string, locale,
 						defaultClassLoader);
 				ResourceBundle fileBundle = ResourceBundle.getBundle(string, locale, fileClassLoader);
-				return packageBundle.getLocale().equals(locale) || fileBundle.getLocale().equals(locale);
+				if (!packageBundle.getLocale().equals(locale) || !fileBundle.getLocale().equals(locale)) {
+					return false;
+				}
 			} catch (MissingResourceException e) {
 				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -292,6 +296,7 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return True if the files were written, false otherwise
 	 */
+	@SuppressWarnings("unused")
 	public static boolean copyDefaultFiles(String defaultPackage, Path targetDir, boolean overwrite, Class<?> caller) {
 		defaultPackage = defaultPackage.replace(".", "/");
 		try {
@@ -335,6 +340,7 @@ public class I18N implements MessageProvider {
 		 * @param defaultPackage The default package. Used for correctly mapping the two file structures. The path in
 		 *                       the jar and outside.
 		 */
+		@SuppressWarnings("unused")
 		public FileClassLoader(Path path, String defaultPackage) {
 			if (!Files.isDirectory(path)) {
 				throw new IllegalArgumentException("Path can only be a directory.");

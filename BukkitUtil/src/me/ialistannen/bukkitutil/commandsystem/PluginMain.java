@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * Plugin main
  */
+@SuppressWarnings("unused")
 public class PluginMain extends JavaPlugin {
 
 	private static PluginMain instance;

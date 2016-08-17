@@ -6,7 +6,6 @@ import java.util.Locale;
 /**
  * A class which provides messages, in exchange for keys and a language.
  */
-@SuppressWarnings("unused")
 public interface MessageProvider {
 
 	/**
@@ -14,6 +13,8 @@ public interface MessageProvider {
 	 *
 	 * @param packageName The name of the package
 	 */
+	@SuppressWarnings("unused")
+	// interface, you know. Not implemented here...
 	void setDefaultFilesPackage(String packageName);
 
 	/**
@@ -21,6 +22,7 @@ public interface MessageProvider {
 	 *
 	 * @param path The path to the user editable language files
 	 */
+	@SuppressWarnings("unused")
 	void setFileLocation(Path path);
 
 	/**
@@ -30,6 +32,7 @@ public interface MessageProvider {
 	 *
 	 * @return The actual new locale set
 	 */
+	@SuppressWarnings("unused")
 	Locale setLanguage(Locale locale);
 
 	/**
@@ -37,6 +40,7 @@ public interface MessageProvider {
 	 *
 	 * @return The current language
 	 */
+	@SuppressWarnings("unused")
 	Locale getLanguage();
 
 	/**
@@ -67,5 +71,6 @@ public interface MessageProvider {
 	 *
 	 * @return True if the key exists
 	 */
+	@SuppressWarnings("unused")
 	boolean containsKey(String key);
 }

@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * The default TabCompleter
  */
+@SuppressWarnings("WeakerAccess") // It said the class can be package-private. I disagree.
 public class DefaultTabCompleter implements TabCompleter {
 
 	private final CommandTree tree;

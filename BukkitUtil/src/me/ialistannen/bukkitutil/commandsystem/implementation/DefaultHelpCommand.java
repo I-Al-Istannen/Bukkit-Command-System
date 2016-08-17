@@ -50,6 +50,7 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 	 *
 	 * @see AbstractCommandNode#AbstractCommandNode(MessageProvider)
 	 */
+	@SuppressWarnings("unused")
 	public DefaultHelpCommand(@Nonnull MessageProvider language, @Nonnull CommandTree tree,
 	                          String key) {
 

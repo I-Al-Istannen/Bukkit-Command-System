@@ -16,6 +16,7 @@ public class CommandResult {
 	 * @param commandNode The command node that ended up executing
 	 * @param resultType  The result of the execution
 	 */
+	@SuppressWarnings("unused")
 	public CommandResult(@Nullable AbstractCommandNode commandNode, @Nonnull CommandResultType resultType) {
 		this.commandNode = commandNode;
 		this.resultType = resultType;
