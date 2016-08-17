@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="spigot-1.8.8">
+    <CLASSES>
+      <root url="jar://S:/Minecraft/Bukkit Server/1.8.8 clean/spigot-1.8.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://S:/Eclipse Workspaces/bukkit-1.8.8-R0.1-20150727.122515-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://S:/Minecraft/Bukkit Server/1.8.8 clean/spigot-1.8.8.jar!/" />
+    </SOURCES>
+  </library>
+</component>

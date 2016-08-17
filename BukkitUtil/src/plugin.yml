@@ -1,0 +1,4 @@
+name: "I_Al_Istannen_Util"
+version: 0.1
+main: me.ialistannen.bukkitutil.commandsystem.PluginMain
+author: "I Al Istannen"
