@@ -18,17 +18,39 @@ public class DefaultTabCompleter implements TabCompleter {
 
 	private final CommandTree tree;
 
+	private boolean assumeCommandIsPartOfTree;
+
 	/**
+	 *
 	 * @param tree The {@link CommandTree}
+	 *
+	 * @see #DefaultTabCompleter(CommandTree, boolean) with true as the boolean
 	 */
 	@SuppressWarnings("unused")
 	public DefaultTabCompleter(CommandTree tree) {
+		this(tree, true);
+	}
+
+	/**
+	 * @param tree                      The {@link CommandTree}
+	 * @param assumeCommandIsPartOfTree If true, the command's name will be treated as the first argument.
+	 */
+	@SuppressWarnings("unused")
+	public DefaultTabCompleter(CommandTree tree, boolean assumeCommandIsPartOfTree) {
 		this.tree = tree;
+		this.assumeCommandIsPartOfTree = assumeCommandIsPartOfTree;
 	}
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		AbstractCommandNode.FindTabCompleteResult result = tree.doTabComplete(sender, alias, args);
+		String[] arguments = args;
+		if (assumeCommandIsPartOfTree) {
+			arguments = new String[args.length + 1];
+			System.arraycopy(args, 0, arguments, 1, args.length);
+			arguments[0] = command.getName();
+		}
+
+		AbstractCommandNode.FindTabCompleteResult result = tree.doTabComplete(sender, alias, arguments);
 		if (result.getResult() == CommandResultType.SUCCESSFUL) {
 			return result.getResultList();
 		}

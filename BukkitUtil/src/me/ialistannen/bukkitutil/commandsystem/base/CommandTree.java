@@ -1,8 +1,12 @@
 package me.ialistannen.bukkitutil.commandsystem.base;
 
 import me.ialistannen.bukkitutil.commandsystem.implementation.DefaultHelpCommand;
+import me.ialistannen.bukkitutil.commandsystem.util.CommandSystemUtil;
 import me.ialistannen.languageSystem.MessageProvider;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -18,6 +22,7 @@ public class CommandTree {
 	private final CommandRoot root;
 
 	private final List<InvalidationListener> invalidationListener = new ArrayList<>();
+	private MessageProvider language;
 
 	/**
 	 * Key for the base root is "tree_root", but it shouldn't be needed!
@@ -27,7 +32,7 @@ public class CommandTree {
 	@SuppressWarnings("unused")
 	public CommandTree(MessageProvider language) {
 		root = new CommandRoot(language);
-		setHelpCommand(new DefaultHelpCommand(language, this, "command_help"));
+		this.language = language;
 	}
 
 	/**
@@ -36,11 +41,11 @@ public class CommandTree {
 	 * @param node The help command node. Annotated with {@link HelpCommandAnnotation}
 	 */
 	@SuppressWarnings("WeakerAccess")
-	public void setHelpCommand(AbstractCommandNode node) {
+	public void setHelpCommand(AbstractCommandNode node, AbstractCommandNode parent) {
 		if (!node.getClass().isAnnotationPresent(HelpCommandAnnotation.class)) {
 			throw new IllegalArgumentException("The help node must be annotated with the 'HelpCommandAnnotation'");
 		}
-		addChild(node);
+		addChild(parent, node);
 	}
 
 	/**
@@ -106,6 +111,35 @@ public class CommandTree {
 		onInvalidate(InvalidationReason.CHILD_ADDED, parent, child, true);
 		parent.addChild(child);
 		onInvalidate(InvalidationReason.CHILD_ADDED, parent, child, false);
+	}
+
+	/**
+	 * Adds the child and registers the command
+	 *
+	 * @param child        The child to add
+	 * @param attachHelp   If true a {@link DefaultHelpCommand} child will be added. If false, no action is taken.
+	 * @param plugin       The plugin to
+	 * @param executor     The {@link CommandExecutor} to assign to it
+	 * @param tabCompleter The {@link TabCompleter} to assign to it
+	 */
+	public void addTopLevelChild(AbstractCommandNode child, boolean attachHelp,
+	                             Plugin plugin, CommandExecutor executor, TabCompleter tabCompleter) {
+		addChild(child);
+		CommandSystemUtil.registerCommand(plugin, child.getKeyword(), executor, tabCompleter);
+		if (attachHelp) {
+			setHelpCommand(new DefaultHelpCommand(language, this, "command_help"), child);
+		}
+	}
+
+	/**
+	 * Adds the child and registers the command
+	 *
+	 * @param child  The child to remove
+	 * @param plugin The plugin to
+	 */
+	public void removeTopLevelChild(AbstractCommandNode child, Plugin plugin) {
+		removeChild(child);
+		CommandSystemUtil.unregisterCommand(plugin, child.getKeyword());
 	}
 
 	/**

@@ -29,19 +29,42 @@ public class DefaultCommandExecutor implements CommandExecutor {
 	private final CommandTree tree;
 	private final MessageProvider language;
 
+	private boolean assumeCommandIsPartOfTree;
+
+
 	/**
 	 * @param tree     The CommandTree
 	 * @param language Lhe Language system
+	 *
+	 * @see #DefaultCommandExecutor(CommandTree, MessageProvider, boolean) with true as the boolean
 	 */
 	@SuppressWarnings("unused")
 	public DefaultCommandExecutor(CommandTree tree, MessageProvider language) {
+		this(tree, language, true);
+	}
+
+	/**
+	 * @param tree                      The CommandTree
+	 * @param language                  Lhe Language system
+	 * @param assumeCommandIsPartOfTree If true, the command's name will be treated as the first argument.
+	 */
+	@SuppressWarnings("unused")
+	public DefaultCommandExecutor(CommandTree tree, MessageProvider language, boolean assumeCommandIsPartOfTree) {
 		this.tree = tree;
 		this.language = language;
+		this.assumeCommandIsPartOfTree = assumeCommandIsPartOfTree;
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
-		CommandResult commandResult = tree.executeCommand(sender, args);
+		String[] arguments = args;
+		if (assumeCommandIsPartOfTree) {
+			arguments = new String[args.length + 1];
+			System.arraycopy(args, 0, arguments, 1, args.length);
+			arguments[0] = command.getName();
+		}
+
+		CommandResult commandResult = tree.executeCommand(sender, arguments);
 		switch (commandResult.getResultType()) {
 			case SUCCESSFUL:
 				break;
@@ -51,7 +74,7 @@ public class DefaultCommandExecutor implements CommandExecutor {
 					PluginMain.getInstance().getLogger().warning("How the heck can this happen?" +
 							" Send usage, but no command defined.");
 					sender.sendMessage(language.tr("command_not_found",
-							Arrays.stream(args).collect(Collectors.joining(" "))));
+							Arrays.stream(arguments).collect(Collectors.joining(" "))));
 					return true;
 				}
 				sender.sendMessage(node.get().getUsage());
@@ -64,7 +87,7 @@ public class DefaultCommandExecutor implements CommandExecutor {
 				break;
 			case NOT_FOUND:
 				sender.sendMessage(language.tr("command_not_found",
-						Arrays.stream(args).collect(Collectors.joining(" "))));
+						Arrays.stream(arguments).collect(Collectors.joining(" "))));
 				break;
 		}
 		return true;
