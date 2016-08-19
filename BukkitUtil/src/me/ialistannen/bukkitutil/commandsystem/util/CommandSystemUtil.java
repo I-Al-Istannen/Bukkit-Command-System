@@ -9,7 +9,6 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Constructor;
@@ -142,7 +141,7 @@ public class CommandSystemUtil {
 	 */
 	private static CommandMap getCommandMap() {
 		try {
-			Field commandMap = CraftServer.class.getDeclaredField("commandMap");
+			Field commandMap = ReflectionUtil.getCraftbukkitClass("CraftServer", "").getDeclaredField("commandMap");
 			commandMap.setAccessible(true);
 			return (CommandMap) commandMap.get(Bukkit.getServer());
 		} catch (NoSuchFieldException | IllegalAccessException e) {

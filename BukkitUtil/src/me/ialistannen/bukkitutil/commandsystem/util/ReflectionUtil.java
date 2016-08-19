@@ -20,7 +20,7 @@ public class ReflectionUtil {
 	static {
 		String name = Bukkit.getServer().getClass().getName();
 		name = name.substring(name.indexOf("craftbukkit.") + "craftbukkit.".length());
-		name = name.substring(0, name.indexOf(""));
+		name = name.substring(0, name.indexOf("."));
 
 		SERVER_VERSION = name;
 	}
@@ -35,7 +35,7 @@ public class ReflectionUtil {
 	@SuppressWarnings("unused")
 	public static Class<?> getNMSClass(String name) {
 		try {
-			return Class.forName("net.minecraft.server." + SERVER_VERSION + "" + name);
+			return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + name);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
@@ -51,7 +51,12 @@ public class ReflectionUtil {
 	@SuppressWarnings("unused")
 	public static Class<?> getCraftbukkitClass(String name, String packageName) {
 		try {
-			return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "" + packageName + "." + name);
+			String fullyQualifiedName = "org.bukkit.craftbukkit." + SERVER_VERSION + ".";
+			if (!packageName.isEmpty()) {
+				fullyQualifiedName = fullyQualifiedName + packageName + ".";
+			}
+			fullyQualifiedName += name;
+			return Class.forName(fullyQualifiedName);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
