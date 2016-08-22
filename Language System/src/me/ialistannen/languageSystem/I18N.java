@@ -179,6 +179,19 @@ public class I18N implements MessageProvider {
 	}
 
 	/**
+	 * Uses the given category
+	 *
+	 * @param key               The key to format
+	 * @param category          The category to translate from
+	 * @param formattingObjects The formatting objects
+	 *
+	 * @return The formatted String.
+	 */
+	public String tr(String key, String category, Object... formattingObjects) {
+		return ChatColor.translateAlternateColorCodes('&', translate(key, category, formattingObjects));
+	}
+
+	/**
 	 * Returns the translation or applies the translation to the given String
 	 *
 	 * @param key               The key to translate
@@ -240,9 +253,9 @@ public class I18N implements MessageProvider {
 	 * @param category          The category of the key
 	 * @param formattingObjects The formatting objects
 	 *
-	 * @return The translated String.
+	 * @return The translated String. Uncolored.
 	 */
-	private String translate(String key, String category, Object... formattingObjects) {
+	public String translate(String key, String category, Object... formattingObjects) {
 		return REMOVE_DOUBLE_QUOTES.matcher(format(key, category, formattingObjects)).replaceAll("'");
 	}
 
