@@ -11,8 +11,10 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.meta.When;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,7 +33,9 @@ public class CommandSystemUtil {
 	 *
 	 * @return The colored string
 	 */
-	public static String color(String string) {
+	static
+	@Nonnull
+	String color(@Nonnull(when = When.ALWAYS) String string) {
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
@@ -44,23 +48,10 @@ public class CommandSystemUtil {
 	 * @return The repeated String
 	 */
 	@SuppressWarnings("SameParameterValue") // May not always want to use " " in the future. This is probably cleaner.
-	public static String repeat(String string, int amount) {
+	static String repeat(String string, int amount) {
 		return IntStream.range(0, amount).mapToObj(value -> string).collect(Collectors.joining());
 	}
 
-
-	// ==== Possibility of adding at runtime, but no real use for it ====
-
-	/**
-	 * Checks whether a command exists.
-	 *
-	 * @param name The name to check
-	 *
-	 * @return True if the name exists and is a command or an alias
-	 */
-	public static boolean isRegistered(String name) {
-		return Bukkit.getPluginCommand(name) == null;
-	}
 
 	/**
 	 * Registers a command at runtime
@@ -107,30 +98,23 @@ public class CommandSystemUtil {
 			return false;
 		}
 
-		try {
-			Field knownCommands = map.getClass().getDeclaredField("knownCommands");
-			knownCommands.setAccessible(true);
+		@SuppressWarnings("unchecked")
+		Map<String, Command> commands = (Map<String, Command>) ReflectionUtil.getInstanceField(map, "knownCommands");
 
-			@SuppressWarnings("unchecked")
-			Map<String, Command> commands = (Map<String, Command>) knownCommands.get(map);
 
-			command = commands.remove(plugin.getName().toLowerCase().trim() + ":" + name.toLowerCase().trim());
-			if (command == null) {
-				command = commands.remove(name.toLowerCase().trim());
-			} else {
-				commands.remove(name.toLowerCase().trim());
-			}
-
-			if (command == null) {
-				return false;
-			}
-
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			PluginMain.getInstance().getLogger().log(Level.WARNING, "Can't get known commands map.", e);
+		if (commands == null) {
+			PluginMain.getInstance().getLogger().log(Level.WARNING, "Can't get known commands map.");
 			return false;
 		}
 
-		return command.unregister(map);
+		command = commands.remove(plugin.getName().toLowerCase().trim() + ":" + name.toLowerCase().trim());
+		if (command == null) {
+			command = commands.remove(name.toLowerCase().trim());
+		} else {
+			commands.remove(name.toLowerCase().trim());
+		}
+
+		return command != null && command.unregister(map);
 	}
 
 
@@ -139,16 +123,14 @@ public class CommandSystemUtil {
 	 *
 	 * @return The {@link CommandMap}
 	 */
-	private static CommandMap getCommandMap() {
-		try {
-			Field commandMap = ReflectionUtil.getCraftbukkitClass("CraftServer", "").getDeclaredField("commandMap");
-			commandMap.setAccessible(true);
-			return (CommandMap) commandMap.get(Bukkit.getServer());
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			PluginMain.getInstance().getLogger().log(Level.WARNING, "Can't get server command map.", e);
+	private static
+	@Nullable
+	CommandMap getCommandMap() {
+		CommandMap commandMap = (CommandMap) ReflectionUtil.getInstanceField(Bukkit.getServer(), "commandMap");
+		if (commandMap == null) {
+			PluginMain.getInstance().getLogger().log(Level.WARNING, "Can't get server command map.");
 		}
-
-		return null;
+		return commandMap;
 	}
 
 	/**
@@ -159,7 +141,9 @@ public class CommandSystemUtil {
 	 *
 	 * @return The {@link PluginCommand}
 	 */
-	private static PluginCommand getCommand(String name, Plugin plugin) {
+	private static
+	@Nullable
+	PluginCommand getCommand(String name, Plugin plugin) {
 		try {
 			Constructor<PluginCommand> constructor = PluginCommand.class
 					.getDeclaredConstructor(String.class, Plugin.class);

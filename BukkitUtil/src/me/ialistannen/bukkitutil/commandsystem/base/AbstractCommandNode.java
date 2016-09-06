@@ -23,13 +23,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccessRestrictable {
 
-
 	protected final MessageProvider language;
-
-
 	private final String BASE_KEY;
-
-
 	private final Set<AbstractCommandNode> children = new HashSet<>();
 
 	/**
@@ -353,8 +348,8 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 * @param result             The CommandResultType (for permission, sender and not found)
 		 */
 		@SuppressWarnings("unused")
-		public FindCommandResult(@Nonnull AbstractCommandNode commandNode, @Nonnull Queue<String> remainingArguments,
-		                         @Nonnull CommandResultType result) {
+		FindCommandResult(@Nonnull AbstractCommandNode commandNode, @Nonnull Queue<String> remainingArguments,
+		                  @Nonnull CommandResultType result) {
 			this.commandNode = commandNode;
 			this.remainingArguments = remainingArguments;
 			this.result = result;
@@ -383,7 +378,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 *
 		 * @return The remaining arguments. May be empty.
 		 */
-		public Queue<String> getRemainingArguments() {
+		Queue<String> getRemainingArguments() {
 			return remainingArguments;
 		}
 	}
@@ -402,7 +397,7 @@ public abstract class AbstractCommandNode implements BukkitCommand, BukkitAccess
 		 * @param result     The CommandResultType (for permission, sender and not found)
 		 */
 		@SuppressWarnings("unused")
-		public FindTabCompleteResult(@Nonnull List<String> resultList, @Nonnull CommandResultType result) {
+		FindTabCompleteResult(@Nonnull List<String> resultList, @Nonnull CommandResultType result) {
 			this.resultList = resultList;
 			this.result = result;
 		}

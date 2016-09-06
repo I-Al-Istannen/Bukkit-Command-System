@@ -2,6 +2,7 @@ package me.ialistannen.languageSystem;
 
 import org.bukkit.ChatColor;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 /**
  * A class utilizing I18N to fulfill the {@link MessageProvider} contract
  */
+@SuppressWarnings("unused") // Used as an API
 public class I18N implements MessageProvider {
 
 	/**
@@ -103,7 +105,7 @@ public class I18N implements MessageProvider {
 	}
 
 	@Override
-	public Locale setLanguage(Locale locale) {
+	public Locale setLanguage(@Nonnull Locale locale) {
 		if (!isAvailable(locale)) {
 			logger.log(Level.WARNING, "Couldn't find the language: " + locale.getDisplayName());
 			return getLanguage();
@@ -129,7 +131,9 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return The formatted String
 	 */
-	private String format(String key, String category, Object... objects) {
+	private
+	@Nonnull
+	String format(@Nonnull String key, @Nonnull String category, Object... objects) {
 		String format = translate(key, category);
 		MessageFormat messageFormat = formatCache.get(format);
 		if (messageFormat == null) {
@@ -174,7 +178,7 @@ public class I18N implements MessageProvider {
 	 * @return The formatted String.
 	 */
 	@Override
-	public String tr(String key, Object... formattingObjects) {
+	public String tr(@Nonnull String key, Object... formattingObjects) {
 		return ChatColor.translateAlternateColorCodes('&', translate(key, categories[0], formattingObjects));
 	}
 
@@ -187,7 +191,8 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return The formatted String.
 	 */
-	public String tr(String key, String category, Object... formattingObjects) {
+	@SuppressWarnings("unused") // Public API to translate another category
+	public String tr(@Nonnull String key, @Nonnull String category, Object... formattingObjects) {
 		return ChatColor.translateAlternateColorCodes('&', translate(key, category, formattingObjects));
 	}
 
@@ -201,7 +206,7 @@ public class I18N implements MessageProvider {
 	 * @return The translated String
 	 */
 	@Override
-	public String trOrDefault(String key, String defaultString, Object... formattingObjects) {
+	public String trOrDefault(@Nonnull String key, @Nonnull String defaultString, Object... formattingObjects) {
 		if (!containsKey(key)) {
 			MessageFormat format;
 			try {
@@ -222,7 +227,7 @@ public class I18N implements MessageProvider {
 	 * @return True if the key exists
 	 */
 	@Override
-	public boolean containsKey(String key) {
+	public boolean containsKey(@Nonnull String key) {
 		return containsKey(key, categories[0]);
 	}
 
@@ -234,7 +239,7 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return True if the key exists
 	 */
-	private boolean containsKey(String key, String category) {
+	private boolean containsKey(@Nonnull String key, @Nonnull String category) {
 		try {
 			try {
 				fileBundles.get(category).getString(key);
@@ -255,17 +260,18 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return The translated String. Uncolored.
 	 */
-	public String translate(String key, String category, Object... formattingObjects) {
+	@SuppressWarnings("WeakerAccess") // public to allow uncolored translation
+	public String translate(@Nonnull String key, @Nonnull String category, Object... formattingObjects) {
 		return REMOVE_DOUBLE_QUOTES.matcher(format(key, category, formattingObjects)).replaceAll("'");
 	}
 
 	@Override
-	public void setDefaultFilesPackage(String packageName) {
+	public void setDefaultFilesPackage(@Nonnull String packageName) {
 		this.defaultPackage = packageName;
 	}
 
 	@Override
-	public void setFileLocation(Path path) {
+	public void setFileLocation(@Nonnull Path path) {
 		this.defaultFilePath = path;
 		updateBundles();
 	}
@@ -284,7 +290,7 @@ public class I18N implements MessageProvider {
 	 *
 	 * @return True if the language is available
 	 */
-	private boolean isAvailable(Locale locale) {
+	private boolean isAvailable(@Nonnull Locale locale) {
 		for (String string : packageBundles.keySet()) {
 			try {
 				ResourceBundle packageBundle = ResourceBundle.getBundle(defaultPackage + "." + string, locale,
@@ -310,7 +316,8 @@ public class I18N implements MessageProvider {
 	 * @return True if the files were written, false otherwise
 	 */
 	@SuppressWarnings("unused")
-	public static boolean copyDefaultFiles(String defaultPackage, Path targetDir, boolean overwrite, Class<?> caller) {
+	public static boolean copyDefaultFiles(@Nonnull String defaultPackage, @Nonnull Path targetDir,
+	                                       boolean overwrite, @Nonnull Class<?> caller) {
 		defaultPackage = defaultPackage.replace(".", "/");
 		try {
 			File jarFile = new File(caller.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -354,7 +361,7 @@ public class I18N implements MessageProvider {
 		 *                       the jar and outside.
 		 */
 		@SuppressWarnings("unused")
-		public FileClassLoader(Path path, String defaultPackage) {
+		FileClassLoader(Path path, String defaultPackage) {
 			if (!Files.isDirectory(path)) {
 				throw new IllegalArgumentException("Path can only be a directory.");
 			}

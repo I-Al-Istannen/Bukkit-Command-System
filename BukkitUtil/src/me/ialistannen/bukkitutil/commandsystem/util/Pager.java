@@ -100,7 +100,8 @@ public class Pager {
 				} else {
 					s = color(language.trOrDefault("command_help_sub_level_prefix", "")) + s;
 				}
-				s = CommandSystemUtil.repeat(" ", counter * 2) + s;
+				s = CommandSystemUtil.repeat(
+						language.trOrDefault("command_help_padding_char", "  "), counter) + s;
 				list.add(s);
 			}
 		} else {
@@ -165,6 +166,7 @@ public class Pager {
 		 * </ul></li>
 		 * <li>"command_help_top_level_prefix" ==> Prefix for a top level command</li>
 		 * <li>"command_help_sub_level_prefix" ==> Prefix for it's children</li>
+		 * <li>"command_help_padding_char" ==> The padding char for the children. Will be repeated twice per level</li>
 		 * </ul></li>
 		 * </ul>
 		 *
