@@ -7,7 +7,10 @@ import me.ialistannen.languageSystem.MessageProvider;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static me.ialistannen.bukkitutil.commandsystem.util.CommandSystemUtil.color;
 
@@ -33,8 +36,30 @@ public class Pager {
 	public static Page getPage(MessageProvider provider, AbstractCommandNode node, CommandTree tree,
 	                           boolean withUsage, int depth, int entriesPerPage, int pageIndex) {
 
-		List<String> expanded = expand(provider, tree, withUsage, node, depth, 0);
+		return getPage(provider, node, tree, withUsage, depth, entriesPerPage, pageIndex, "", false);
+	}
 
+	/**
+	 * Returns the wanted page.
+	 * <p>The different language keys are explained here: {@link Page#send(CommandSender, MessageProvider)}
+	 *
+	 * @param provider       The language provider (usage, and stuff)
+	 * @param node           The node to get the children from
+	 * @param tree           The {@link CommandTree}
+	 * @param withUsage      Whether the usage should be send as well
+	 * @param depth          The depth of the entries
+	 * @param entriesPerPage The entries per page
+	 * @param pageIndex      The index of the page
+	 * @param searchFilter   The string that must appear in the description or usage
+	 * @param isRegEx        If true, the search filter will be interpreted as a regular expression
+	 *
+	 * @return The resulting page
+	 */
+	public static Page getPage(MessageProvider provider, AbstractCommandNode node, CommandTree tree,
+	                           boolean withUsage, int depth, int entriesPerPage, int pageIndex,
+	                           String searchFilter, boolean isRegEx) {
+
+		List<String> expanded = expand(provider, tree, withUsage, searchFilter, isRegEx, node, depth, 0);
 		return slice(expanded, entriesPerPage, pageIndex);
 	}
 
@@ -49,6 +74,10 @@ public class Pager {
 	 */
 	private static Page slice(List<String> all, int entriesPerPage, int pageIndex) {
 		int pageAmount = (int) Math.ceil(all.size() / (double) entriesPerPage);
+
+		if (pageAmount == 0) {
+			return new Page(1, 0, Collections.emptyList());
+		}
 
 		if (pageIndex < 0 || pageIndex >= pageAmount) {
 			pageIndex = pageIndex < 0 ? 0 : pageAmount - 1;
@@ -68,7 +97,7 @@ public class Pager {
 	 * @param counter  The current counter. Just supply 0. Used for recursion.
 	 */
 	private static List<String> expand(MessageProvider language, CommandTree tree,
-	                                   boolean withUsage,
+	                                   boolean withUsage, String searchFilter, boolean isRegEx,
 	                                   AbstractCommandNode node, int maxDepth, int counter) {
 		List<String> list = new ArrayList<>();
 
@@ -84,7 +113,8 @@ public class Pager {
 					finalString = language.trOrDefault(key,
 							"&3{0}&9: &7{1} &7<&6{2}&7><newline>  &cUsage: {3}",
 							node.getName(), description, childrenAmount, usage);
-				} else {
+				}
+				else {
 					String key = "command_help_format_without_usage";
 					finalString = language.trOrDefault(key,
 							"&3{0}&9: &7{1} &7<&6{2}&7>",
@@ -94,17 +124,34 @@ public class Pager {
 				finalString = color(finalString);
 			}
 
+			Pattern pattern = null;
+			if (isRegEx) {
+				pattern = Pattern.compile(searchFilter);
+			}
 			for (String s : finalString.split("<newline>")) {
 				if (counter == 0) {
 					s = color(language.trOrDefault("command_help_top_level_prefix", "")) + s;
-				} else {
+				}
+				else {
 					s = color(language.trOrDefault("command_help_sub_level_prefix", "")) + s;
 				}
 				s = CommandSystemUtil.repeat(
 						language.trOrDefault("command_help_padding_char", "  "), counter) + s;
-				list.add(s);
+
+				if (!s.isEmpty()) {
+					if (isRegEx) {
+						Matcher matcher = pattern.matcher(s);
+						if (matcher.find()) {
+							list.add(s);
+						}
+					}
+					else if (s.contains(searchFilter)) {
+						list.add(s);
+					}
+				}
 			}
-		} else {
+		}
+		else {
 			counter--;
 		}
 
@@ -113,7 +160,7 @@ public class Pager {
 		}
 
 		for (AbstractCommandNode commandNode : tree.getChildren(node)) {
-			list.addAll(expand(language, tree, withUsage, commandNode, maxDepth, counter + 1));
+			list.addAll(expand(language, tree, withUsage, searchFilter, isRegEx, commandNode, maxDepth, counter + 1));
 		}
 
 		return list;

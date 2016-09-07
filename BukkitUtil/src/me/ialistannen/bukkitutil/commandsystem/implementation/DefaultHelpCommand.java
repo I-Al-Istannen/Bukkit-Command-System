@@ -72,7 +72,8 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 	@Override
 	public List<String> tabComplete(CommandSender sender, String alias, List<String> wholeUserChat,
 	                                int indexRelativeToYou) {
-		return Arrays.asList("--depth=", "--page=", "--entriesPerPage=", "--showUsage=false");
+		return Arrays.asList("--depth=", "--page=", "--entriesPerPage=", "--showUsage=false",
+				"--search=", "--searchRegEx=");
 	}
 
 	@Override
@@ -81,6 +82,8 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 		AtomicInteger depth = new AtomicInteger(2);
 		AtomicInteger entriesPerPage = new AtomicInteger(10);
 		AtomicBoolean showUsage = new AtomicBoolean(false);
+		StringBuilder searchFilter = new StringBuilder();
+		AtomicBoolean searchUsingRegEx = new AtomicBoolean(false);
 		Arrays.stream(args)
 				.filter(s -> s.matches("--depth=\\d{1,9}"))
 				.forEach(s -> {
@@ -105,15 +108,33 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 					s = s.replace("--showUsage=", "");
 					showUsage.set(Boolean.parseBoolean(s));
 				});
+		Arrays.stream(args)
+				.filter(s -> s.matches("--search=.+"))
+				.forEach(s -> {
+					s = s.replace("--search=", "");
+					searchFilter.append(s.trim());
+				});
+		Arrays.stream(args)
+				.filter(s -> s.matches("--searchRegEx=.+"))
+				.forEach(s -> {
+					s = s.replace("--searchRegEx=", "");
+					if (searchFilter.length() != 0) {
+						searchFilter.delete(0, searchFilter.length());
+					}
+					searchFilter.append(s.trim());
+
+					searchUsingRegEx.set(true);
+				});
 
 		if (args.length > 0) {
 			AbstractCommandNode.FindCommandResult result = tree.find(new ArrayDeque<>(Arrays.asList(args)), sender);
 
 			if (result.getResult() == CommandResultType.SUCCESSFUL) {
 				Pager.getPage(language, result.getCommandNode(), tree, showUsage.get(), depth.get(),
-						entriesPerPage.get(), page.get())
-						.send(sender, language);
-			} else {
+						entriesPerPage.get(), page.get(), searchFilter.toString(), searchUsingRegEx.get()
+				).send(sender, language);
+			}
+			else {
 				sender.sendMessage(language.tr(KEY + "_not_found",
 						Arrays.stream(args).collect(Collectors.joining(" "))));
 			}
