@@ -18,7 +18,7 @@ public class ReflectionUtil {
 
 	static {
 		String name = Bukkit.getServer().getClass().getName();
-		name = name.substring(name.indexOf("craftbukkit.") + "craftbukkit.".length());
+		name = name.substring(name.indexOf("craftbukkit.") + "craftbukkit." .length());
 		name = name.substring(0, name.indexOf("."));
 
 		SERVER_VERSION = name;
@@ -32,9 +32,8 @@ public class ReflectionUtil {
 	 * @return The NMS class or null if an error occurred
 	 */
 	@SuppressWarnings("unused")
-	public static
 	@Nullable
-	Class<?> getNMSClass(String name) {
+	public static Class<?> getNMSClass(String name) {
 		try {
 			return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + name);
 		} catch (ClassNotFoundException e) {
@@ -49,9 +48,8 @@ public class ReflectionUtil {
 	 *
 	 * @return The CraftBukkit class or null if an error occurred
 	 */
-	public static
 	@Nullable
-	Class<?> getCraftbukkitClass(String name, String packageName) {
+	public static Class<?> getCraftbukkitClass(String name, String packageName) {
 		try {
 			return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "." + packageName + "." + name);
 		} catch (ClassNotFoundException e) {
@@ -70,9 +68,8 @@ public class ReflectionUtil {
 	 * @return The resulting object or null if an error occurred / the method didn't return a thing
 	 */
 	@SuppressWarnings("unused")
-	public static
 	@Nullable
-	Object invokeMethod(Object handle, String methodName, Class[] parameterClasses, Object... args) {
+	public static Object invokeMethod(Object handle, String methodName, Class[] parameterClasses, Object... args) {
 		return invokeMethod(handle.getClass(), handle, methodName, parameterClasses, args);
 	}
 
@@ -87,10 +84,9 @@ public class ReflectionUtil {
 	 *
 	 * @return The resulting object or null if an error occurred / the method didn't return a thing
 	 */
-	public static
 	@Nullable
-	Object invokeMethod(Class<?> clazz, Object handle, String methodName, Class[] parameterClasses,
-	                    Object... args) {
+	public static Object invokeMethod(Class<?> clazz, Object handle, String methodName, Class[] parameterClasses,
+	                                  Object... args) {
 		Optional<Method> methodOptional = getMethod(clazz, methodName, parameterClasses);
 
 		if (!methodOptional.isPresent()) {
@@ -121,6 +117,35 @@ public class ReflectionUtil {
 			return method.invoke(handle, args);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Invokes the method
+	 *
+	 * @param rethrowMethodErrors If true, any exceptions by the method invoked will be propagated up
+	 * @param method              The method to invoke
+	 * @param handle              The handle to invoke on
+	 * @param args                The arguments
+	 *
+	 * @return The resulting object or null if an error occurred / the method didn't return a thing
+	 *
+	 * @throws InvocationTargetException if an exception is thrown by the method
+	 */
+	public static Object invokeMethod(boolean rethrowMethodErrors, Method method, Object handle, Object... args)
+			throws InvocationTargetException {
+		try {
+			return method.invoke(handle, args);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			if (rethrowMethodErrors) {
+				throw e;
+			}
+			else {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -161,9 +186,8 @@ public class ReflectionUtil {
 	 * @return The value
 	 */
 	@SuppressWarnings("unused")
-	public static
 	@Nullable
-	Object getInstanceField(Object handle, String name) {
+	public static Object getInstanceField(Object handle, String name) {
 		Class<?> clazz = handle.getClass();
 		Optional<Field> fieldOptional = getField(clazz, name);
 		if (!fieldOptional.isPresent()) {
@@ -191,9 +215,8 @@ public class ReflectionUtil {
 	 * @return The Constructor or null if there is none with these parameters
 	 */
 	@SuppressWarnings("unused")
-	public static
 	@Nullable
-	Constructor<?> getConstructor(Class<?> clazz, Class<?>... params) {
+	public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... params) {
 		try {
 			return clazz.getConstructor(params);
 		} catch (NoSuchMethodException e) {
@@ -210,9 +233,8 @@ public class ReflectionUtil {
 	 * @return The resulting object, or null if an error occurred.
 	 */
 	@SuppressWarnings("unused")
-	public static
 	@Nullable
-	Object instantiate(Constructor<?> constructor, Object... arguments) {
+	public static Object instantiate(Constructor<?> constructor, Object... arguments) {
 		try {
 			return constructor.newInstance(arguments);
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -222,7 +244,14 @@ public class ReflectionUtil {
 		return null;
 	}
 
-	private static Optional<Method> getMethod(Class<?> clazz, String name, Class<?>... params) {
+	/**
+	 * @param clazz  The class to get the method for
+	 * @param name   The name of the method
+	 * @param params The parameters of the method
+	 *
+	 * @return The method, if any
+	 */
+	public static Optional<Method> getMethod(Class<?> clazz, String name, Class<?>... params) {
 		try {
 			return Optional.of(clazz.getMethod(name, params));
 		} catch (NoSuchMethodException ignored) {

@@ -8,10 +8,12 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -119,6 +121,23 @@ public class NBTWrappers {
 			return "NBTTagString{" +
 					"string='" + string + '\'' +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagString)) {
+				return false;
+			}
+			NBTTagString that = (NBTTagString) o;
+			return Objects.equals(string, that.string);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(string);
 		}
 	}
 
@@ -310,6 +329,23 @@ public class NBTWrappers {
 			return getByte(key) != 0;
 		}
 
+		/**
+		 * Checks if this compound is empty
+		 *
+		 * @return True if there are no keys
+		 */
+		public boolean isEmpty() {
+			return map.isEmpty();
+		}
+
+		/**
+		 * All the entries
+		 *
+		 * @return A Map with all the entries
+		 */
+		public Map<String, INBTBase> getAllEntries() {
+			return Collections.unmodifiableMap(map);
+		}
 
 		@Override
 		public Object toNBT() {
@@ -353,6 +389,23 @@ public class NBTWrappers {
 			return "NBTTagCompound{" +
 					"map=" + map +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagCompound)) {
+				return false;
+			}
+			NBTTagCompound compound = (NBTTagCompound) o;
+			return Objects.equals(map, compound.map);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(map);
 		}
 	}
 
@@ -414,6 +467,23 @@ public class NBTWrappers {
 			return "NBTTagList{" +
 					"list=" + list +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagList)) {
+				return false;
+			}
+			NBTTagList that = (NBTTagList) o;
+			return Objects.equals(list, that.list);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(list);
 		}
 	}
 
@@ -520,6 +590,23 @@ public class NBTWrappers {
 					"value=" + value +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagDouble)) {
+				return false;
+			}
+			NBTTagDouble that = (NBTTagDouble) o;
+			return Double.compare(that.value, value) == 0;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
+		}
 	}
 
 	/**
@@ -574,6 +661,23 @@ public class NBTWrappers {
 					"value=" + value +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagInt)) {
+				return false;
+			}
+			NBTTagInt nbtTagInt = (NBTTagInt) o;
+			return value == nbtTagInt.value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
+		}
 	}
 
 	/**
@@ -623,6 +727,23 @@ public class NBTWrappers {
 			return "NBTTagIntArray{" +
 					"value=" + Arrays.toString(value) +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagIntArray)) {
+				return false;
+			}
+			NBTTagIntArray that = (NBTTagIntArray) o;
+			return Arrays.equals(value, that.value);
+		}
+
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(value);
 		}
 	}
 
@@ -677,6 +798,23 @@ public class NBTWrappers {
 					"value=" + value +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagByte)) {
+				return false;
+			}
+			NBTTagByte that = (NBTTagByte) o;
+			return value == that.value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
+		}
 	}
 
 	/**
@@ -726,6 +864,23 @@ public class NBTWrappers {
 			return "NBTTagByteArray{" +
 					"value=" + Arrays.toString(value) +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagByteArray)) {
+				return false;
+			}
+			NBTTagByteArray that = (NBTTagByteArray) o;
+			return Arrays.equals(value, that.value);
+		}
+
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(value);
 		}
 	}
 
@@ -780,6 +935,23 @@ public class NBTWrappers {
 					"value=" + value +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagShort)) {
+				return false;
+			}
+			NBTTagShort that = (NBTTagShort) o;
+			return value == that.value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
+		}
 	}
 
 	/**
@@ -833,6 +1005,23 @@ public class NBTWrappers {
 					"value=" + value +
 					'}';
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagLong)) {
+				return false;
+			}
+			NBTTagLong that = (NBTTagLong) o;
+			return value == that.value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
+		}
 	}
 
 	/**
@@ -885,6 +1074,23 @@ public class NBTWrappers {
 			return "NBTTagFloat{" +
 					"value=" + value +
 					'}';
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof NBTTagFloat)) {
+				return false;
+			}
+			NBTTagFloat that = (NBTTagFloat) o;
+			return Float.compare(that.value, value) == 0;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(value);
 		}
 	}
 
