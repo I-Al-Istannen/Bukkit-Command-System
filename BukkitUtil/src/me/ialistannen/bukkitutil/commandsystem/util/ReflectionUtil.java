@@ -18,10 +18,55 @@ public class ReflectionUtil {
 
 	static {
 		String name = Bukkit.getServer().getClass().getName();
-		name = name.substring(name.indexOf("craftbukkit.") + "craftbukkit." .length());
+		name = name.substring(name.indexOf("craftbukkit.") + "craftbukkit.".length());
 		name = name.substring(0, name.indexOf("."));
 
 		SERVER_VERSION = name;
+	}
+
+	/**
+	 * Returns the major version of the server
+	 *
+	 * @return The major version of the server
+	 */
+	public static int getMajorVersion() {
+		String name = Bukkit.getVersion();
+
+		name = name.substring(name.indexOf("MC: ") + "MC: ".length());
+		name = name.replace(")", "");
+
+		return Integer.parseInt(name.split("\\.")[0]);
+	}
+
+	/**
+	 * Returns the minor version of the server
+	 *
+	 * @return The minor version of the server
+	 */
+	public static int getMinorVersion() {
+		String name = Bukkit.getVersion();
+		name = name.substring(name.indexOf("MC: ") + "MC: ".length());
+		name = name.replace(")", "");
+
+		return Integer.parseInt(name.split("\\.")[1]);
+	}
+
+	/**
+	 * Returns the patch version of the server
+	 *
+	 * @return The patch version of the server
+	 */
+	public static int getPatchVersion() {
+		String name = Bukkit.getVersion();
+		name = name.substring(name.indexOf("MC: ") + "MC: ".length());
+		name = name.replace(")", "");
+
+		String[] splitted = name.split("\\.");
+		if (splitted.length < 3) {
+			return 0;
+		}
+
+		return Integer.parseInt(splitted[2]);
 	}
 
 	/**

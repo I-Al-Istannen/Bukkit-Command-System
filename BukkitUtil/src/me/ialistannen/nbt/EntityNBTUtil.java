@@ -158,8 +158,66 @@ public class EntityNBTUtil {
 			error = true;
 			PluginMain.getInstance().getLogger()
 					.warning("Couldn't find entity class");
+			sample.remove();
 			return;
 		}
+
+		if (ReflectionUtil.getMajorVersion() > 1 || ReflectionUtil.getMinorVersion() > 8) {
+			initializeHigherThan1_9(entityClass, sample, nmsSample);
+		}
+		else {
+			initializeLowerThan1_9(entityClass, sample, nmsSample);
+		}
+
+
+		if (saveToNbtMethod == null || loadFromNbtMethod == null) {
+			PluginMain.getInstance().getLogger()
+					.warning("Couldn't find the methods. This could help: "
+							+ entityClass.getName()
+							+ " save " + (saveToNbtMethod == null)
+							+ " load " + (loadFromNbtMethod == null));
+			error = true;
+		}
+		sample.remove();
+	}
+
+	private static void initializeHigherThan1_9(Class<?> entityClass, Entity sample, Object nmsSample) {
+		// load the loading method
+		initializeLowerThan1_9(entityClass, sample, nmsSample);
+
+		for (Method method : entityClass.getMethods()) {
+			// the save method : "public NBTTagCompound(final NBTTagCompound compound)"
+			if (method.getReturnType().equals(ReflectionUtil.getNMSClass("NBTTagCompound"))
+					&& method.getParameterTypes().length == 1
+					&& method.getParameterTypes()[0].equals(ReflectionUtil.getNMSClass("NBTTagCompound"))
+					&& Modifier.isPublic(method.getModifiers())
+					&& !Modifier.isStatic(method.getModifiers())) {
+
+				Object testCompound = new NBTTagCompound().toNBT();
+				ReflectionUtil.invokeMethod(method, nmsSample, testCompound);
+
+				NBTTagCompound compound = (NBTTagCompound) INBTBase.fromNBT(testCompound);
+
+				if (compound == null) {
+					continue;
+				}
+
+				if (!compound.isEmpty()) {
+					if (saveToNbtMethod != null) {
+						saveToNbtMethod = null;
+						PluginMain.getInstance().getLogger()
+								.warning("Couldn't find the saving method for an entity. This should help: "
+										+ entityClass.getName());
+						error = true;
+						return;
+					}
+					saveToNbtMethod = method;
+				}
+			}
+		}
+	}
+
+	private static void initializeLowerThan1_9(Class<?> entityClass, Entity sample, Object nmsSample) {
 
 		for (Method method : entityClass.getMethods()) {
 			if (method.getReturnType().equals(Void.TYPE)
@@ -178,10 +236,11 @@ public class EntityNBTUtil {
 
 				if (compound.isEmpty()) {
 					if (loadFromNbtMethod != null) {
-						loadFromNbtMethod = null;
 						PluginMain.getInstance().getLogger()
 								.warning("Couldn't find the loading method for an entity. This should help: "
-										+ entityClass.getName());
+										+ entityClass.getName()
+										+ " found methods: " + loadFromNbtMethod + " " + method);
+						loadFromNbtMethod = null;
 						error = true;
 						return;
 					}
@@ -189,18 +248,18 @@ public class EntityNBTUtil {
 				}
 				else {
 					if (saveToNbtMethod != null) {
-						saveToNbtMethod = null;
 						PluginMain.getInstance().getLogger()
 								.warning("Couldn't find the saving method for an entity. This should help: "
-										+ entityClass.getName());
+										+ entityClass.getName()
+										+ " found methods: " + saveToNbtMethod + " " + method);
 						error = true;
+						saveToNbtMethod = null;
 						return;
 					}
 					saveToNbtMethod = method;
 				}
 			}
 		}
-		sample.remove();
 	}
 
 }
