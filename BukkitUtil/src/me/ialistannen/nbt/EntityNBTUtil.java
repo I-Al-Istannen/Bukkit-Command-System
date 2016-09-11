@@ -20,6 +20,11 @@ import java.util.Optional;
  * <p>
  * The methods must only be called when at least one world is loaded, as it needs to spawn a sample entity (ArmorStand).
  * <br>It will be enforced by throwing an {@link IllegalStateException}.
+ * <p>
+ * <br>
+ * <i><b>DISCLAIMER: </b></i>
+ * <br>Doesn't allow for the addition of new tags. You can modify the tags of the TileEntity, but not add new ones.
+ * This is a limitation of minecraft.
  */
 @SuppressWarnings("unused") // just by me...
 public class EntityNBTUtil {
