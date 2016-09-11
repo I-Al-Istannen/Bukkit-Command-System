@@ -24,10 +24,18 @@ public class TileEntityNBTUtil {
 	private static Method loadFromNBT, saveToNBT, getTileEntity;
 	private static boolean error = false;
 
-	private static final Class<?> CRAFT_BLOCK_STATE_CLASS = ReflectionUtil
-			.getCraftbukkitClass("CraftBlockState", "block");
+	private static final Class<?> CRAFT_BLOCK_STATE_CLASS;
 
 	static {
+		CRAFT_BLOCK_STATE_CLASS = ReflectionUtil
+				.getCraftbukkitClass("CraftBlockState", "block");
+
+		if (CRAFT_BLOCK_STATE_CLASS == null) {
+			PluginMain.getInstance().getLogger().warning("CraftBlockState not found. Version: "
+					+ Bukkit.getBukkitVersion() + " " + Bukkit.getVersion());
+			error = true;
+		}
+
 		Optional<Method> getTileEntityOpt = ReflectionUtil.getMethod(
 				ReflectionUtil.getCraftbukkitClass("CraftBlockState", "block"),
 				"getTileEntity"
@@ -95,6 +103,7 @@ public class TileEntityNBTUtil {
 	@SuppressWarnings("WeakerAccess")   // others may want to call that...
 	public static void setNbtTag(BlockState blockState, NBTTagCompound compound) {
 		Objects.requireNonNull(blockState);
+		Objects.requireNonNull(compound);
 		ensureCorrectClass(blockState);
 		ensureNoError();
 
@@ -120,6 +129,7 @@ public class TileEntityNBTUtil {
 	 */
 	public static void appendNbtTag(BlockState blockState, NBTTagCompound compound) {
 		Objects.requireNonNull(blockState);
+		Objects.requireNonNull(compound);
 		ensureCorrectClass(blockState);
 		ensureNoError();
 
@@ -144,10 +154,14 @@ public class TileEntityNBTUtil {
 	 * @param blockState The Bukkit {@link BlockState} to check
 	 *
 	 * @return True if the {@link BlockState} has a TileEntity
+	 *
+	 * @throws IllegalStateException If an unrepairable error occurred earlier (probably version incompatibility).
 	 */
 	@SuppressWarnings("WeakerAccess")   // others may want to call that...
 	public static boolean isValidClass(BlockState blockState) {
-		return !blockState.getClass().equals(CRAFT_BLOCK_STATE_CLASS);
+		ensureNoError();
+		// no NPE will be thrown.
+		return !CRAFT_BLOCK_STATE_CLASS.equals(blockState.getClass());
 	}
 
 	/**
@@ -157,7 +171,7 @@ public class TileEntityNBTUtil {
 	 */
 	private static void ensureCorrectClass(BlockState state) {
 		if (!isValidClass(state)) {
-			throw new IllegalArgumentException("The state is not a TileEntity");
+			throw new IllegalArgumentException("The state is not a TileEntity. Valid is e.g. a Chest or a Furnace.");
 		}
 	}
 
