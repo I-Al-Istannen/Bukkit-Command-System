@@ -33,9 +33,8 @@ public class CommandSystemUtil {
 	 *
 	 * @return The colored string
 	 */
-	static
 	@Nonnull
-	String color(@Nonnull(when = When.ALWAYS) String string) {
+	public static String color(@Nonnull(when = When.ALWAYS) String string) {
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
@@ -48,7 +47,7 @@ public class CommandSystemUtil {
 	 * @return The repeated String
 	 */
 	@SuppressWarnings("SameParameterValue") // May not always want to use " " in the future. This is probably cleaner.
-	static String repeat(String string, int amount) {
+	public static String repeat(String string, int amount) {
 		return IntStream.range(0, amount).mapToObj(value -> string).collect(Collectors.joining());
 	}
 

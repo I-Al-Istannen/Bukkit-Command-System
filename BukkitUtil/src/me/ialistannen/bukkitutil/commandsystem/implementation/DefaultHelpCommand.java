@@ -2,20 +2,31 @@ package me.ialistannen.bukkitutil.commandsystem.implementation;
 
 import me.ialistannen.bukkitutil.commandsystem.base.AbstractCommandNode;
 import me.ialistannen.bukkitutil.commandsystem.base.CommandResultType;
+import me.ialistannen.bukkitutil.commandsystem.base.CommandRoot;
 import me.ialistannen.bukkitutil.commandsystem.base.CommandTree;
 import me.ialistannen.bukkitutil.commandsystem.base.HelpCommandAnnotation;
-import me.ialistannen.bukkitutil.commandsystem.util.Pager;
+import me.ialistannen.bukkitutil.commandsystem.util.CommandSystemUtil;
 import me.ialistannen.languageSystem.MessageProvider;
+import me.ialistannen.other.Pager;
+import me.ialistannen.other.Pager.Options;
+import me.ialistannen.other.Pager.PagerFilterable;
+import me.ialistannen.other.Pager.SearchMode;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permissible;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static me.ialistannen.bukkitutil.commandsystem.util.CommandSystemUtil.color;
 
 /**
  * The default help command
@@ -126,13 +137,22 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 					searchUsingRegEx.set(true);
 				});
 
+		Options options = Options.builder()
+				.setEntriesPerPage(entriesPerPage.get())
+				.setPageIndex(page.get())
+				.setSearchPattern(searchFilter.toString())
+				.setSearchModes(searchUsingRegEx.get()
+						? SearchMode.REGEX_FIND
+						: SearchMode.CONTAINS).build();
+
 		if (args.length > 0) {
 			AbstractCommandNode.FindCommandResult result = tree.find(new ArrayDeque<>(Arrays.asList(args)), sender);
 
 			if (result.getResult() == CommandResultType.SUCCESSFUL) {
-				Pager.getPage(language, result.getCommandNode(), tree, showUsage.get(), depth.get(),
-						entriesPerPage.get(), page.get(), searchFilter.toString(), searchUsingRegEx.get()
-				).send(sender, language);
+				List<PagerFilterable> entries =
+						getCommandFilterable(language, tree, showUsage.get(), result.getCommandNode(), depth.get(), 0);
+				Pager.getPageFromFilterable(options, entries)
+						.send(sender, language);
 			}
 			else {
 				sender.sendMessage(language.tr(KEY + "_not_found",
@@ -141,9 +161,156 @@ public class DefaultHelpCommand extends AbstractCommandNode {
 			return CommandResultType.SUCCESSFUL;
 		}
 
-		Pager.getPage(language, tree.getRoot(), tree, showUsage.get(), depth.get(), entriesPerPage.get(), page.get())
+		List<PagerFilterable> entries =
+				getCommandFilterable(language, tree, showUsage.get(), tree.getRoot(), depth.get(), 0);
+
+		Pager.getPageFromFilterable(options, entries)
 				.send(sender, language);
 
 		return CommandResultType.SUCCESSFUL;
+	}
+
+	/**
+	 * Sends help for one command
+	 *
+	 * @param maxDepth The maximum depth. Index based. 0 ==> Just this command, 1 ==> Command and children
+	 * @param counter  The current counter. Just supply 0. Used for recursion.
+	 */
+	private static List<PagerFilterable> getCommandFilterable(MessageProvider language, CommandTree tree,
+	                                                          boolean withUsage, AbstractCommandNode node,
+	                                                          int maxDepth, int counter) {
+		List<PagerFilterable> list = new ArrayList<>();
+
+		if (!(node instanceof CommandRoot)) {
+			PagerFilterable filterable = new CommandFilterable(node, withUsage, tree.getChildren(node).size(),
+					language, counter);
+			list.add(filterable);
+		}
+		else {
+			counter--;
+		}
+
+		if (counter >= maxDepth) {
+			return list;
+		}
+
+		for (AbstractCommandNode commandNode : tree.getChildren(node)) {
+			list.addAll(getCommandFilterable(language, tree, withUsage, commandNode, maxDepth, counter + 1));
+		}
+
+		return list;
+	}
+
+	private static class CommandFilterable implements PagerFilterable {
+
+		private AbstractCommandNode node;
+		private boolean showUsage;
+		private String childrenAmount;
+		private MessageProvider language;
+		private int depth;
+
+		private List<String> allLines;
+
+		CommandFilterable(AbstractCommandNode node, boolean showUsage, int childrenAmount,
+		                  MessageProvider language, int depth) {
+			this.node = node;
+			this.showUsage = showUsage;
+			this.childrenAmount = childrenAmount == 0 ? "" : Integer.toString(childrenAmount);
+			this.language = language;
+			this.depth = depth;
+
+			calculateAllLines();
+		}
+
+		@Override
+		public boolean accepts(Options options) {
+			// match against what is shown
+			for (String line : allLines) {
+				if (options.matchesPattern(strip(line))) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * @param coloredString The String to strip the colors from
+		 *
+		 * @return The uncolored String
+		 */
+		private static String strip(String coloredString) {
+			return ChatColor.stripColor(coloredString);
+		}
+
+		private void calculateAllLines() {
+			String finalString;
+			{
+				if (showUsage) {
+					String key = "command_help_format_with_usage";
+					finalString = language.trOrDefault(key,
+							"&3{0}&9: &7{1} &7<&6{2}&7><newline>  &cUsage: {3}",
+							node.getName(), node.getDescription(), childrenAmount, node.getUsage());
+				}
+				else {
+					String key = "command_help_format_without_usage";
+					finalString = language.trOrDefault(key,
+							"&3{0}&9: &7{1} &7<&6{2}&7>",
+							node.getName(), node.getDescription(), childrenAmount, node.getUsage());
+				}
+
+				finalString = color(finalString);
+			}
+
+			List<String> list = new ArrayList<>();
+
+			for (String s : finalString.split("<newline>")) {
+				if (depth == 0) {
+					s = color(language.trOrDefault("command_help_top_level_prefix", "")) + s;
+				}
+				else {
+					s = color(language.trOrDefault("command_help_sub_level_prefix", "")) + s;
+				}
+				s = CommandSystemUtil.repeat(language.trOrDefault("command_help_padding_char", "  "), depth) + s;
+
+				if (!s.isEmpty()) {
+					list.add(s);
+				}
+			}
+
+			allLines = list;
+		}
+
+		@Override
+		public @NotNull List<String> getAllLines() {
+			return allLines;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof CommandFilterable)) {
+				return false;
+			}
+			CommandFilterable that = (CommandFilterable) o;
+			return Objects.equals(node, that.node);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(node);
+		}
+
+		@Override
+		public String toString() {
+			return "CommandFilterable{" +
+					"node=" + node.getName() +
+					", showUsage=" + showUsage +
+					", childrenAmount='" + childrenAmount + '\'' +
+					", depth=" + depth +
+					", allLines=" + getAllLines() +
+					'}';
+		}
 	}
 }
