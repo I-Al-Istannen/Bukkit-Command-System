@@ -1,9 +1,9 @@
-package me.ialistannen.nbt;
+package me.ialistannen.bukkitutil.nbt;
 
 import me.ialistannen.bukkitutil.commandsystem.PluginMain;
 import me.ialistannen.bukkitutil.commandsystem.util.ReflectionUtil;
-import me.ialistannen.nbt.NBTWrappers.INBTBase;
-import me.ialistannen.nbt.NBTWrappers.NBTTagCompound;
+import me.ialistannen.bukkitutil.nbt.NBTWrappers.INBTBase;
+import me.ialistannen.bukkitutil.nbt.NBTWrappers.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.libs.joptsimple.internal.Objects;
 import org.bukkit.entity.Entity;

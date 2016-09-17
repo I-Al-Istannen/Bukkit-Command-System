@@ -1,4 +1,4 @@
-package me.ialistannen.math;
+package me.ialistannen.bukkitutil.math;
 
 import org.bukkit.util.Vector;
 

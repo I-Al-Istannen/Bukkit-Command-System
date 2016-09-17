@@ -1,4 +1,4 @@
-package me.ialistannen.other;
+package me.ialistannen.bukkitutil.other;
 
 import me.ialistannen.languageSystem.MessageProvider;
 import org.bukkit.command.CommandSender;

@@ -1,4 +1,4 @@
-package me.ialistannen.nbt;
+package me.ialistannen.bukkitutil.nbt;
 
 import me.ialistannen.bukkitutil.commandsystem.util.ReflectionUtil;
 import org.bukkit.inventory.ItemStack;
